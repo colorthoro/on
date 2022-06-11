@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<head></head>
+
+<body>
+    <div>
+        <div id="time"></div>
+        <div>
+            <button id="refresh_loc">刷新定位</button>
+            <dic id="loc"></dic>
+            <div id="loc_name"></div>
+            <div id="speed"></div>
+            <div id="heading"></div>
+        </div>
+    </div>
+    <script>
+        // let getDate = () => new Date();
+        // setInterval((x) => {
+        //     document.getElementById('time').innerText = x().toLocaleString();
+        // } , 1000, getDate);
+        // 等效
+        setInterval(() => {
+            let x = new Date();
+            document.getElementById('time').innerText = x.toLocaleString();
+        }, 1000);
+
+
+        class apiCaller {
+            constructor() {
+                this.sender = new XMLHttpRequest();
+            }
+            mkUrl(obj) {
+                let url = obj.base;
+                let keys = Object.keys(obj.kvs);
+                for (let i = 0; i < keys.length; i++) {
+                    let k = keys[i];
+                    let v = obj.kvs[k];
+                    if (i == 0) {
+                        url += '?';
+                    }
+                    url = url.concat(k, '=', v);
+                    if (i != keys.length - 1) {
+                        url += '&';
+                    }
+                }
+                return url
+            }
+            get(url) {
+                if (!this.sender) {
+                    console.log('no sender!');
+                    return false;
+                }
+                this.sender.open("GET", url, true);//设置请求参数（请求方式，url，异步）
+                this.sender.send();
+                return true;
+            }
+            success(func) {
+                this.sender.onreadystatechange = () => {
+                    if (this.sender.readyState == 4 && this.sender.status == 200) { //请求完成并且状态码为200
+                        let resStr = this.sender.responseText;
+                        let resObj = JSON.parse(resStr);
+                        func(resObj);
+                    }
+                };
+            }
+        }
+
+        let api = new apiCaller();
+
+        function gaoDeLoc(gaodeLntLatStr) {
+            let max_radius = 500;
+            let requestObj = {
+                base: 'https://restapi.amap.com/v3/geocode/regeo',
+                kvs: {
+                    key: '22f56bdaf27f7d13215d03984880ab26',
+                    location: gaodeLntLatStr,
+                    radius: 0,
+                }
+            }
+            api.get(api.mkUrl(requestObj))
+            api.success((resObj) => {
+                console.log(resObj);
+                console.log(`range ${requestObj.kvs.radius}`)
+                if (resObj.status != 1 && requestObj.kvs.radius <= max_radius) {
+                    requestObj.kvs.radius += 50;
+                } else {
+                    document.getElementById('loc_name').innerHTML = (
+                        resObj.regeocode.formatted_address
+                    );
+                }
+            })
+        }
+
+        function gaoDeLntLat(longitude, latitude) {
+            longitude = longitude.toFixed(6);
+            latitude = latitude.toFixed(6);
+            let requestObj = {
+                base: 'https://restapi.amap.com/v3/assistant/coordinate/convert',
+                kvs: {
+                    key: '22f56bdaf27f7d13215d03984880ab26',
+                    locations: `${longitude},${latitude}`,
+                    coordsys: 'gps',
+                }
+            }
+            api.get(api.mkUrl(requestObj));
+            api.success((resObj) => {
+                console.log(resObj);
+                gaoDeLoc(resObj.locations);
+            })
+        }
+
+        function refreshLoc() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log(position);
+                    document.getElementById('loc').innerText = (
+                        position.coords.longitude + ' ' + position.coords.latitude
+                    );
+                    gaoDeLntLat(position.coords.longitude, position.coords.latitude)
+                    // document.getElementById('speed').innerHTML = (
+                    //     position.coords.speed
+                    // )
+                    // document.getElementById('heading').innerHTML = (
+                    //     position.coords.heading
+                    // )
+                },
+                (positionError) => {
+                    console.log(positionError.code, positionError.message)
+                },
+                {
+                    enableHighAccuracy: true,
+                }
+            );
+        }
+        refreshLoc();
+        document.getElementById('refresh_loc').onclick = refreshLoc;
+        // setInterval(refreshLoc, 5000);
+
+    </script>
+</body>
