@@ -1,11 +1,23 @@
 'use strict';
+
+
+function isMobile(){
+    if(window.navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)) {
+      return true; // 移动端
+    }else{
+      return false; // PC端
+    }
+}
+let eventStr = isMobile()?'ontouchmove':'mousemove';
+
+
 const ship = document.getElementById('spaceship');
 let skyX = 0, skyY = 0, pangle, angle, skyBackTimer, shipToTimer,
     shipX = ship.offsetLeft + ship.offsetWidth / 2,
     shipY = ship.offsetTop + ship.offsetHeight / 2,
     dx, dy, index, mul;
 console.log(shipX, shipY);
-document.addEventListener('mousemove', (e) => {
+document.addEventListener(eventStr, (e) => {
     index = 0;  // 鼠标移动会重置飞船的跟踪
     mul = 9;  // 飞船刚开始走的快，后面变慢
     dx = e.clientX - shipX;
