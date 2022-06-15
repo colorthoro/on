@@ -51,12 +51,11 @@ document.addEventListener(eventStr, (e) => {
 
     function skyBack() {
         clearTimeout(skyBackTimer);  // 上次计时器启动还没执行时，鼠标移动事件再次发生，就要取消上次的执行，以根据新参数执行
-        let stepX = Math.max(e.clientX - shipX),
-            stepY = Math.max(e.clientY - shipY);  // 这里不要再直接用dx和dy，因为shipTo()使飞船渐进鼠标，背景速度也该变化。
-        if (Math.abs(stepX) < 1 && Math.abs(stepY) < 1) {
-            stepX *= 10;
-            stepY *= 10;  // 悬停惯性速度
-        }
+        let tdx = e.clientX - shipX, tdy = e.clientY - shipY,  // 这里不要再直接用dx和dy，因为shipTo()使飞船渐进鼠标，背景速度也该变化。
+            mindx = dx / 10, mindy = dy / 10,  // mindx mindy 用来设置惯性速度
+            stepX = Math.abs(tdx) > Math.abs(mindx) ? tdx:mindx,
+            stepY =Math.abs(tdy) > Math.abs(mindy) ? tdy:mindy;
+        console.log(dx, dy, stepX, stepY);
         skyX -= stepX / 10;
         skyY -= stepY / 10;
         // console.log('背景速度矢量，BOM坐标', stepX.toFixed(1), stepY.toFixed(1));
