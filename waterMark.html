@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.0-beta1/css/bootstrap.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.0.0-alpha.1/axios.js"></script>
+    <title>快速水印制作</title>
+    <style>
+        .modify {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: whitesmoke;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .modify .item {
+            display: block;
+            width: 10em;
+            margin: 0.5em 2em 0.5em 0.5em;
+        }
+
+        .item label {
+            display: block;
+        }
+
+        .item input {
+            display: inline-block;
+            width: 100%;
+        }
+
+        .modify>input[type=range]:last-child {
+            position: absolute;
+            margin: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2em;
+            height: 80%;
+            -webkit-appearance: slider-vertical;
+        }
+
+        .imgEcho {
+            width: fit-content;
+            margin: 1em auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div style="width: 100vw;height:100vh;" @click="act">
+            <h2 style="z-index: -9; position: absolute; left:50%; top:50%;transform:translate(-50%,-50%)">点击选择图片</h2>
+            <input id="imgInput" type="file" accept="image/*" @change="go($event)" style="display: none;">
+            <div class="imgEcho">
+                <canvas id="imgEcho"></canvas>
+            </div>
+        </div>
+        <div class="modify">
+            <div class="item"><input type="text" v-model.number="waterMarker.text"></div>
+            <div class="item">
+                <label>x间距:{{waterMarker.space[0]}}</label>
+                <input type="range" min="1" max="2000" v-model.number="waterMarker.space[0]">
+            </div>
+            <div class="item">
+                <label>y间距:{{waterMarker.space[1]}}</label>
+                <input type="range" min="1" max="2000" v-model.number="waterMarker.space[1]">
+            </div>
+            <div class="item">
+                <label>x起点:{{waterMarker.start[0]}}</label>
+                <input type="range" min="-2000" max="2000" v-model.number="waterMarker.start[0]">
+            </div>
+            <div class="item">
+                <label>y起点:{{waterMarker.start[1]}}</label>
+                <input type="range" min="-2000" max="2000" v-model.number="waterMarker.start[1]">
+            </div>
+            <div class="item">
+                <label>角度:{{waterMarker.angle}}</label>
+                <input type="range" min="-360" max="360" v-model.number="waterMarker.angle">
+            </div>
+            <div class="item">
+                <label>透明度:{{waterMarker.opacity}}</label>
+                <input type="range" min="0.1" max="1" step="0.1" v-model.number="waterMarker.opacity">
+            </div>
+            <div class="item">
+                <label>字体大小:{{waterMarker.fontSize}}</label>
+                <input type="range" min="0.1" max="50" step="0.1" v-model.number="waterMarker.fontSize">
+            </div>
+            <input type="range" min="0.1" max="1" step="0.1" v-model.number="pannelOpacity">
+        </div>
+    </div>
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    imgData: null,
+                    pannelOpacity: 0.8,
+                    imgOrigin: [0, 0],
+                    waterMarker: {
+                        text: Date(),
+                        start: [0, 0],
+                        space: [600, 100],
+                        len: 0,
+                        angle: -30,
+                        opacity: 0.5,
+                        color: '255,255,255',  // TODO
+                        fontFamily: 'microsoft yahei',  // TODO
+                        fontSize: 20,
+                    }
+                }
+            },
+            computed: {
+                imgElement() {
+                    if (this.imgData === null) return null;
+                    let p1 = new Promise((ok, no) => {
+                        let reader = new FileReader();
+                        reader.readAsDataURL(this.imgData);//转化成base64数据类型
+                        reader.onload = (e) => {
+                            console.log(e);
+                            let url = e.currentTarget.result;
+                            let img = new Image();
+                            img.src = url;
+                            img.onload = () => {
+                                console.log('获得imgFile成功');
+                                ok(img);
+                            };
+                        };
+                    });
+                    return p1;
+                }
+            },
+            methods: {
+                async init() {
+                    let img = await this.imgElement;
+                    let len = Math.sqrt(
+                        Math.pow(img.width, 2) + Math.pow(img.height, 2)
+                    ).toFixed(2);
+                    this.waterMarker.len = len;
+                    let origin = [(img.width * 0.5).toFixed(2), (img.height * 0.5).toFixed(2)];
+                    this.waterMarker.start[0] = parseInt(origin[0] - len);
+                    this.waterMarker.start[1] = parseInt(origin[1] - len);
+                    this.imgOrigin = origin;
+                },
+                async draw() {
+                    let img = await this.imgElement;
+                    if (img === null) return;
+                    //准备canvas环境 
+                    let canvas = document.querySelector("#imgEcho");
+                    canvas.width = img.width
+                    canvas.height = img.height
+                    let ctx = canvas.getContext("2d");
+                    // 绘制图片
+                    ctx.drawImage(img, 0, 0);
+                    // 绘制水印
+                    ctx.font = `${this.waterMarker.fontSize}px ${this.waterMarker.fontFamily}`;
+                    ctx.fillStyle = `rgba(255,255,255,${this.waterMarker.opacity})`;
+                    // 设置旋转起点
+                    ctx.translate(this.imgOrigin[0], this.imgOrigin[1]);
+                    ctx.rotate(this.waterMarker.angle * Math.PI / 180);
+                    let xh = this.waterMarker.space[0];
+                    let yh = this.waterMarker.space[1];
+                    let len = this.waterMarker.len;
+                    if ((len / xh) * (len / yh) > 1e5) {
+                        window.alert('太密集了！')
+                        return;
+                    }
+                    let startX = this.waterMarker.start[0];
+                    let startY = this.waterMarker.start[1];
+                    for (let x = startX; x < len; x += xh) {
+                        for (let y = startY; y < len; y += yh) {
+                            // console.log(x, y)
+                            ctx.fillText(this.waterMarker.text, x, y);
+                        }
+                    }
+                },
+                go(e) {
+                    console.log(e);
+                    let file = e.target.files[0];
+                    if (!/image\/\w+/.test(file.type)) {
+                        alert("请确保文件为图像类型");
+                        return false;
+                    }  // 移动端适配
+                    this.imgData = file;
+                    this.init();
+                    this.draw();
+                },
+                act() {
+                    let input = document.querySelector("#imgInput")
+                    input.click()
+                }
+            },
+            watch: {
+                waterMarker: {
+                    deep: true,
+                    handler() {
+                        this.draw();
+                    }
+                },
+                pannelOpacity() {
+                    document.querySelector('.modify').style.opacity = this.pannelOpacity;
+                }
+            },
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
