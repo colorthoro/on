@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.0-beta1/css/bootstrap.css" rel="stylesheet">
-    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.2.40/vue.global.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.0.0-alpha.1/axios.js"></script>
     <title>快速水印制作</title>
     <style>
@@ -17,23 +17,25 @@
             background-color: whitesmoke;
             border-radius: 10px;
             padding: 10px;
+            opacity: 0;
+            transition: opacity 0.5s;
         }
 
-        .modify .item {
-            display: block;
-            width: 10em;
-            margin: 0.5em 2em 0.5em 0.5em;
+        .modify .form-label {
+            margin: 0;
+            text-align: center;
+            width: 6em;
         }
 
-        .item label {
-            display: block;
-        }
-
-        .item input {
+        .modify .form-range,
+        .form-group {
             display: inline-block;
-            width: 100%;
+            vertical-align: middle;
+            width: 10em;
         }
 
+
+        /* 
         .modify>input[type=range]:last-child {
             position: absolute;
             margin: 0;
@@ -43,7 +45,7 @@
             width: 2em;
             height: 80%;
             -webkit-appearance: slider-vertical;
-        }
+        } */
 
         .imgEcho {
             width: fit-content;
@@ -61,54 +63,68 @@
                 <canvas id="imgEcho"></canvas>
             </div>
         </div>
-        <div class="modify">
-            <div class="item"><input type="text" v-model.number="waterMarker.text"></div>
-            <div class="item">
-                <label>x间距:{{waterMarker.space[0]}}</label>
-                <input type="range" min="1" max="2000" v-model.number="waterMarker.space[0]">
+        <div class="modify" @mouseenter="pannelOpacity=1" @mouseleave="pannelOpacity=0">
+            <div class="d-grid gap-2">
+                <input class="form-control" type="text" v-model.number="waterMarker.text">
+                <div>
+                    <label class="form-label">x间距:{{numFilter(waterMarker.space[0])}}</label>
+                    <input class="form-range" type="range" min="1" max="5000" v-model.number="waterMarker.space[0]">
+                </div>
+                <div>
+                    <label class="form-label">y间距:{{numFilter(waterMarker.space[1])}}</label>
+                    <input class="form-range" type="range" min="1" max="5000" v-model.number="waterMarker.space[1]">
+                </div>
+                <div>
+                    <label class="form-label">x起点:{{numFilter(waterMarker.start[0])}}</label>
+                    <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.start[0]">
+                </div>
+                <div>
+                    <label class="form-label">y起点:{{numFilter(waterMarker.start[1])}}</label>
+                    <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.start[1]">
+                </div>
+                <div>
+                    <label class="form-label">长度:{{numFilter(waterMarker.len)}}</label>
+                    <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.len">
+                </div>
+                <div>
+                    <label class="form-label">角度:{{numFilter(waterMarker.angle)}}</label>
+                    <input class="form-range" type="range" min="-180" max="180" v-model.number="waterMarker.angle">
+                </div>
+                <div>
+                    <label class="form-label">透明度:{{waterMarker.opacity}}</label>
+                    <input class="form-range" type="range" min="0.1" max="1" step="0.1"
+                        v-model.number="waterMarker.opacity">
+                </div>
+                <div>
+                    <label class="form-label">大小:{{numFilter(waterMarker.fontSize)}}</label>
+                    <input class="form-range" type="range" min="0.1" max="5000" step="0.1"
+                        v-model.number="waterMarker.fontSize">
+                </div>
+                <div>
+                    <label class="form-label">颜色</label>
+                    <input class="form-group" type="color" v-model="waterMarker.color">
+                </div>
+                <button class="btn btn-outline-primary" v-if="imgData!==null" @click="save">导出</button>
             </div>
-            <div class="item">
-                <label>y间距:{{waterMarker.space[1]}}</label>
-                <input type="range" min="1" max="2000" v-model.number="waterMarker.space[1]">
-            </div>
-            <div class="item">
-                <label>x起点:{{waterMarker.start[0]}}</label>
-                <input type="range" min="-2000" max="2000" v-model.number="waterMarker.start[0]">
-            </div>
-            <div class="item">
-                <label>y起点:{{waterMarker.start[1]}}</label>
-                <input type="range" min="-2000" max="2000" v-model.number="waterMarker.start[1]">
-            </div>
-            <div class="item">
-                <label>角度:{{waterMarker.angle}}</label>
-                <input type="range" min="-360" max="360" v-model.number="waterMarker.angle">
-            </div>
-            <div class="item">
-                <label>透明度:{{waterMarker.opacity}}</label>
-                <input type="range" min="0.1" max="1" step="0.1" v-model.number="waterMarker.opacity">
-            </div>
-            <div class="item">
-                <label>字体大小:{{waterMarker.fontSize}}</label>
-                <input type="range" min="0.1" max="50" step="0.1" v-model.number="waterMarker.fontSize">
-            </div>
-            <input type="range" min="0.1" max="1" step="0.1" v-model.number="pannelOpacity">
         </div>
+        <!-- <input type="range" min="0" max="1" step="0.1" v-model.number="pannelOpacity"> -->
+    </div>
     </div>
     <script>
         Vue.createApp({
             data() {
                 return {
                     imgData: null,
-                    pannelOpacity: 0.8,
+                    pannelOpacity: 0,
                     imgOrigin: [0, 0],
                     waterMarker: {
                         text: Date(),
                         start: [0, 0],
-                        space: [600, 100],
+                        space: [100, 100],
                         len: 0,
-                        angle: -30,
+                        angle: 0,
                         opacity: 0.5,
-                        color: '255,255,255',  // TODO
+                        color: '#ffffff',
                         fontFamily: 'microsoft yahei',  // TODO
                         fontSize: 20,
                     }
@@ -139,11 +155,12 @@
                     let img = await this.imgElement;
                     let len = Math.sqrt(
                         Math.pow(img.width, 2) + Math.pow(img.height, 2)
-                    ).toFixed(2);
+                    );
                     this.waterMarker.len = len;
-                    let origin = [(img.width * 0.5).toFixed(2), (img.height * 0.5).toFixed(2)];
-                    this.waterMarker.start[0] = parseInt(origin[0] - len);
-                    this.waterMarker.start[1] = parseInt(origin[1] - len);
+                    let origin = [img.width * 0.5, img.height * 0.5];
+                    this.waterMarker.angle = -(Math.atan2(img.width, img.height) * 180 / Math.PI);
+                    this.waterMarker.start[0] = - len * 0.5;
+                    this.waterMarker.start[1] = - len * 0.5;
                     this.imgOrigin = origin;
                 },
                 async draw() {
@@ -158,7 +175,7 @@
                     ctx.drawImage(img, 0, 0);
                     // 绘制水印
                     ctx.font = `${this.waterMarker.fontSize}px ${this.waterMarker.fontFamily}`;
-                    ctx.fillStyle = `rgba(255,255,255,${this.waterMarker.opacity})`;
+                    ctx.fillStyle = `rgba(${this._hexToRgb(this.waterMarker.color)},${this.waterMarker.opacity})`;
                     // 设置旋转起点
                     ctx.translate(this.imgOrigin[0], this.imgOrigin[1]);
                     ctx.rotate(this.waterMarker.angle * Math.PI / 180);
@@ -171,11 +188,24 @@
                     }
                     let startX = this.waterMarker.start[0];
                     let startY = this.waterMarker.start[1];
-                    for (let x = startX; x < len; x += xh) {
-                        for (let y = startY; y < len; y += yh) {
+                    for (let x = startX; x - startX < len; x += xh) {
+                        for (let y = startY; y - startY < len; y += yh) {
                             // console.log(x, y)
                             ctx.fillText(this.waterMarker.text, x, y);
                         }
+                    }
+                },
+                save() {
+                    let canvas = document.querySelector("#imgEcho");
+                    let name = prompt('请输入要保存的图片名称', this.imgData.name) // 'canvas绘制图片'为图片默认名
+                    if (name === "") {
+                        alert('名字不能为空')
+                    } else {
+                        let href = canvas.toDataURL() // 获取canvas对应的base64编码
+                        let a = document.createElement('a') // 创建a标签
+                        a.download = name // 设置图片名字
+                        a.href = href
+                        a.dispatchEvent(new MouseEvent('click'))
                     }
                 },
                 go(e) {
@@ -192,6 +222,19 @@
                 act() {
                     let input = document.querySelector("#imgInput")
                     input.click()
+                },
+                numFilter(num) {
+                    return parseFloat(num).toFixed(0);
+                },
+                _hexToRgb(hex) {
+                    hex = hex.replace('#', '');
+                    let bigint = parseInt(hex, 16);
+                    let obj = {
+                        r: (bigint >> 16) & 255,
+                        g: (bigint >> 8) & 255,
+                        b: bigint & 255,
+                    };
+                    return obj.r + ',' + obj.g + ',' + obj.b;
                 }
             },
             watch: {
@@ -202,8 +245,12 @@
                     }
                 },
                 pannelOpacity() {
-                    document.querySelector('.modify').style.opacity = this.pannelOpacity;
+                    let pannel = document.querySelector('.modify');
+                    pannel.style.opacity = this.pannelOpacity;
                 }
+            },
+            mounted() {
+                setTimeout(() => { this.pannelOpacity = 1; }, 500);
             },
         }).mount('#app')
     </script>
