@@ -14,28 +14,30 @@
             position: fixed;
             top: 0;
             left: 50%;
-            transform: translate(-50%, 50%);
+            transform: translate(-50%, 0);
             height: 1em;
             width: 1em;
+            padding: 1em;
             text-indent: 10em;
             overflow: hidden;
         }
 
         .switch::after {
             position: absolute;
-            line-height: 0.5;
-            top: 0.2em;
-            left: 0.1em;
+            top: 50%;
+            left: 50%;
             text-indent: 0;
             content: "O";
+            transform: translate(-50%, -50%);
         }
 
         .modify {
             position: fixed;
-            top: 10px;
+            top: 0;
             left: 50%;
             width: 80vw;
             max-width: 40em;
+            margin-top: 3rem;
             transform: translate(-50%, 0);
             background-color: whitesmoke;
             border-radius: 10px;
@@ -48,7 +50,7 @@
             transition: all 0.5s !important;
             top: 0 !important;
             opacity: 0 !important;
-            transform: translate(-50%, -100%) !important;
+            transform: translate(-50%, -150%) !important;
         }
 
         .fluency {
@@ -97,7 +99,7 @@
 
 <body>
     <div id="app">
-        <div :class="class_switch" @mouseenter="pannelOpened=1" @click="pannelOpened=pannelOpened?0:1">面板开关</div>
+        <div :class="class_switch" @click="pannelOpened=pannelOpened?0:1">面板开关</div>
         <div style="width: 100vw;height:100vh;" @click="act">
             <div :class="class_pannel" @click.stop @mouseleave="pannelOpened=0">
                 <div class="d-grid gap-2">
@@ -154,6 +156,9 @@
         <!-- <input type="range" min="0" max="1" step="0.1" v-model.number="pannelOpacity"> -->
     </div>
     <script>
+        function fIsMobile() {
+            return /Android|iPhone|iPad|iPod|BlackBerry|webOS|Windows Phone|SymbianOS|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
         Vue.createApp({
             data() {
                 return {
@@ -185,7 +190,7 @@
                     return {
                         'switch': true,
                         'fluency': true,
-                        'upout': this.pannelOpened,
+                        'upout': this.pannelOpened && !fIsMobile(),
                     }
                 },
                 imgElement() {
