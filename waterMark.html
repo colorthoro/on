@@ -10,28 +10,64 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.0.0-alpha.1/axios.js"></script>
     <title>快速水印制作</title>
     <style>
+        .switch {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            height: 1em;
+            width: 1em;
+            text-indent: 10em;
+            overflow: hidden;
+        }
+
+        .switch::after {
+            position: absolute;
+            line-height: 0.5;
+            top: 0.2em;
+            left: 0.1em;
+            text-indent: 0;
+            content: "O";
+        }
+
         .modify {
             position: fixed;
             top: 10px;
-            right: 10px;
+            left: 50%;
+            width: 80vw;
+            max-width: 40em;
+            transform: translate(-50%, 0);
             background-color: whitesmoke;
             border-radius: 10px;
             padding: 10px;
-            opacity: 0;
-            transition: opacity 0.5s;
+            z-index: 999;
         }
 
-        .modify .form-label {
+        .upout {
+            position: fixed !important;
+            transition: all 0.5s !important;
+            top: 0 !important;
+            opacity: 0 !important;
+            transform: translate(-50%, -100%) !important;
+        }
+
+        .fluency {
+            transition: all 0.5s !important;
+        }
+
+        .item {
+            display: flex;
+        }
+
+        .item .form-label {
             margin: 0;
             text-align: center;
-            width: 6em;
+            flex: 6em;
         }
 
-        .modify .form-range,
+        .item .form-range,
         .form-group {
-            display: inline-block;
-            vertical-align: middle;
-            width: 10em;
+            flex: 80%;
         }
 
 
@@ -48,74 +84,81 @@
         } */
 
         .imgEcho {
-            width: fit-content;
-            margin: 1em auto;
+            max-width: 80vw;
+            max-height: 80vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: auto;
         }
     </style>
 </head>
 
 <body>
     <div id="app">
+        <div :class="class_switch" @mouseenter="pannelOpened=1" @click="pannelOpened=pannelOpened?0:1">面板开关</div>
         <div style="width: 100vw;height:100vh;" @click="act">
+            <div :class="class_pannel" @click.stop @mouseleave="pannelOpened=0">
+                <div class="d-grid gap-2">
+                    <input class="form-control" type="text" v-model.number="waterMarker.text">
+                    <div class="item">
+                        <label class="form-label">x间距:{{numFilter(waterMarker.space[0])}}</label>
+                        <input class="form-range" type="range" min="1" max="5000" v-model.number="waterMarker.space[0]">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">y间距:{{numFilter(waterMarker.space[1])}}</label>
+                        <input class="form-range" type="range" min="1" max="5000" v-model.number="waterMarker.space[1]">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">x起点:{{numFilter(waterMarker.start[0])}}</label>
+                        <input class="form-range" type="range" min="-6000" max="6000"
+                            v-model.number="waterMarker.start[0]">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">y起点:{{numFilter(waterMarker.start[1])}}</label>
+                        <input class="form-range" type="range" min="-6000" max="6000"
+                            v-model.number="waterMarker.start[1]">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">长度:{{numFilter(waterMarker.len)}}</label>
+                        <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.len">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">角度:{{numFilter(waterMarker.angle)}}</label>
+                        <input class="form-range" type="range" min="-180" max="180" v-model.number="waterMarker.angle">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">透明度:{{waterMarker.opacity}}</label>
+                        <input class="form-range" type="range" min="0.1" max="1" step="0.1"
+                            v-model.number="waterMarker.opacity">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">大小:{{numFilter(waterMarker.fontSize)}}</label>
+                        <input class="form-range" type="range" min="0.1" max="5000" step="0.1"
+                            v-model.number="waterMarker.fontSize">
+                    </div>
+                    <div class="item">
+                        <label class="form-label">颜色</label>
+                        <input class="form-group" type="color" v-model="waterMarker.color">
+                    </div>
+                    <button class="btn btn-outline-primary" v-if="imgData!==null" @click="save">导出</button>
+                </div>
+            </div>
             <h2 style="z-index: -9; position: absolute; left:50%; top:50%;transform:translate(-50%,-50%)">点击选择图片</h2>
             <input id="imgInput" type="file" accept="image/*" @change="go($event)" style="display: none;">
             <div class="imgEcho">
                 <canvas id="imgEcho"></canvas>
             </div>
         </div>
-        <div class="modify" @mouseenter="pannelOpacity=1" @mouseleave="pannelOpacity=0">
-            <div class="d-grid gap-2">
-                <input class="form-control" type="text" v-model.number="waterMarker.text">
-                <div>
-                    <label class="form-label">x间距:{{numFilter(waterMarker.space[0])}}</label>
-                    <input class="form-range" type="range" min="1" max="5000" v-model.number="waterMarker.space[0]">
-                </div>
-                <div>
-                    <label class="form-label">y间距:{{numFilter(waterMarker.space[1])}}</label>
-                    <input class="form-range" type="range" min="1" max="5000" v-model.number="waterMarker.space[1]">
-                </div>
-                <div>
-                    <label class="form-label">x起点:{{numFilter(waterMarker.start[0])}}</label>
-                    <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.start[0]">
-                </div>
-                <div>
-                    <label class="form-label">y起点:{{numFilter(waterMarker.start[1])}}</label>
-                    <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.start[1]">
-                </div>
-                <div>
-                    <label class="form-label">长度:{{numFilter(waterMarker.len)}}</label>
-                    <input class="form-range" type="range" min="-6000" max="6000" v-model.number="waterMarker.len">
-                </div>
-                <div>
-                    <label class="form-label">角度:{{numFilter(waterMarker.angle)}}</label>
-                    <input class="form-range" type="range" min="-180" max="180" v-model.number="waterMarker.angle">
-                </div>
-                <div>
-                    <label class="form-label">透明度:{{waterMarker.opacity}}</label>
-                    <input class="form-range" type="range" min="0.1" max="1" step="0.1"
-                        v-model.number="waterMarker.opacity">
-                </div>
-                <div>
-                    <label class="form-label">大小:{{numFilter(waterMarker.fontSize)}}</label>
-                    <input class="form-range" type="range" min="0.1" max="5000" step="0.1"
-                        v-model.number="waterMarker.fontSize">
-                </div>
-                <div>
-                    <label class="form-label">颜色</label>
-                    <input class="form-group" type="color" v-model="waterMarker.color">
-                </div>
-                <button class="btn btn-outline-primary" v-if="imgData!==null" @click="save">导出</button>
-            </div>
-        </div>
         <!-- <input type="range" min="0" max="1" step="0.1" v-model.number="pannelOpacity"> -->
-    </div>
     </div>
     <script>
         Vue.createApp({
             data() {
                 return {
                     imgData: null,
-                    pannelOpacity: 0,
+                    pannelOpened: 0,
                     imgOrigin: [0, 0],
                     waterMarker: {
                         text: Date(),
@@ -131,6 +174,20 @@
                 }
             },
             computed: {
+                class_pannel() {
+                    return {
+                        'modify': true,
+                        'fluency': true,
+                        'upout': !this.pannelOpened,
+                    }
+                },
+                class_switch() {
+                    return {
+                        'switch': true,
+                        'fluency': true,
+                        'upout': this.pannelOpened,
+                    }
+                },
                 imgElement() {
                     if (this.imgData === null) return null;
                     let p1 = new Promise((ok, no) => {
@@ -194,6 +251,12 @@
                             ctx.fillText(this.waterMarker.text, x, y);
                         }
                     }
+                    let imgEcho = document.querySelector('.imgEcho');
+                    imgEcho.scrollTo({
+                        top: imgEcho.scrollHeight * 0.5 - imgEcho.offsetHeight * 0.5,
+                        left: imgEcho.scrollWidth * 0.5 - imgEcho.offsetWidth * 0.5,
+                        behavior: "smooth"
+                    });
                 },
                 save() {
                     let canvas = document.querySelector("#imgEcho");
@@ -244,13 +307,7 @@
                         this.draw();
                     }
                 },
-                pannelOpacity() {
-                    let pannel = document.querySelector('.modify');
-                    pannel.style.opacity = this.pannelOpacity;
-                }
-            },
-            mounted() {
-                setTimeout(() => { this.pannelOpacity = 1; }, 500);
+
             },
         }).mount('#app')
     </script>
