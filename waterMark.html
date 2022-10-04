@@ -19,6 +19,9 @@
             width: 1em;
             padding: 1em;
             text-indent: 10em;
+            z-index: 998;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 1em;
             overflow: hidden;
         }
 
@@ -86,12 +89,12 @@
         } */
 
         .imgEcho {
-            max-width: 80vw;
-            max-height: 80vh;
+            max-width: 100vw;
+            max-height: 100vh;
             position: absolute;
-            top: 50%;
+            bottom: 0;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, 0);
             overflow: auto;
         }
     </style>
@@ -168,7 +171,7 @@
                     waterMarker: {
                         text: Date(),
                         start: [0, 0],
-                        space: [100, 100],
+                        space: [600, 100],
                         len: 0,
                         angle: 0,
                         opacity: 0.5,
