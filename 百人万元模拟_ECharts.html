@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.1/echarts.common.js"></script>
+</head>
+
+<body>
+    <div id="main" style="width: 100vw;height:80vh;"></div>
+    <script>
+        var nums = 10000, per = 100;
+        var people = Array(nums).fill(per);
+        var moneyDis = new Map([['money', 'peopleCnt']]);
+        people.forEach(m => {
+            moneyDis.set(m, (moneyDis.get(m) || 0) + 1)
+        })
+
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            dataset: {
+                source: [...moneyDis.entries()]
+            },
+            grid: { containLabel: true },
+            xAxis: { name: 'money', min: v => v.min - 5, max: v => v.max + 5 },
+            yAxis: { name: 'peopleCnt', max: v => v.max + 5 },
+            toolbox: {
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: false
+                    },
+                }
+            },
+            series: [
+                {
+                    type: 'bar',
+                    encode: {
+                        y: 'peopleCnt'
+                    }
+                }
+            ]
+        };
+        option && myChart.setOption(option);
+
+        function mapSub(map, k) {
+            map.set(k, (map.get(k) || 0) - 1);
+        }
+        function mapAdd(map, k) {
+            map.set(k, (map.get(k) || 0) + 1);
+        }
+
+        async function update(set = false) {
+            for (let i = 0; i < nums; i++) {
+                if (people[i] > 0) {
+                    mapSub(moneyDis, people[i]);
+                    people[i]--;
+                    mapAdd(moneyDis, people[i]);
+                    let choice = Math.floor(Math.random() * nums);
+                    mapSub(moneyDis, people[choice]);
+                    people[choice]++;
+                    mapAdd(moneyDis, people[choice]);
+                }
+            }
+            if (set) output();
+        }
+        function output() {
+            myChart.setOption({
+                dataset: {
+                    source: [...moneyDis.entries()]
+                },
+            })
+        }
+        async function acc(times) {
+            console.log('演化', times, '轮');
+            for (let i = 0; i < times; i++)await update();
+            console.log('输出');
+            output();
+        }
+
+        async function conti(perTimes) {
+            await acc(perTimes);
+            await new Promise(ok => setTimeout(ok, 1000));
+            conti(perTimes);
+        }
+        // conti(1000);
+    </script>
+</body>
+
+</html>
