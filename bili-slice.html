@@ -44,7 +44,7 @@
             let bid = s.slice(start, end);
             let url = `https://colorthoro.gitee.io/on-js/bili.html?id=${bid}&name=${iname.value}`;
             res1.innerText = url;
-            let script = `<a href=${url}>${iname.value}</a>`
+            let script = `<a href="${url}">${iname.value}</a>`
             res2.innerText = script;
         }
         iname.onchange = iurl.onchange;
