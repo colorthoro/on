@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bilibili</title>
+    <title>bilibili Magic</title>
     <style>
         * {
             margin: 0;
@@ -29,25 +29,9 @@
 
 <body>
     <div class="flex-wrapper">
-        <iframe id="if0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+        <iframe id="if0" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
+        </iframe>
     </div>
-    <script>
-        function setUserAgent(window, userAgent) {
-            if (window.navigator.userAgent != userAgent) {
-                var userAgentProp = { get: function () { return userAgent; } };
-                try {
-                    Object.defineProperty(window.navigator, 'userAgent', userAgentProp);
-                } catch (e) {
-                    window.navigator = Object.create(navigator, {
-                        userAgent: userAgentProp
-                    });
-                }
-            }
-        }
-        setUserAgent(document.getElementById('if0').contentWindow, 'windows');
-        setUserAgent(window, 'windows');
-    </script>
-
     <script>
         function getQueryStringArgs() {
             //取得查询字符串并去掉开头的问号
@@ -75,11 +59,12 @@
         }
         let args = getQueryStringArgs();
         console.log(args);
-        let bid = args['id'];
-        if (bid) {
-            let if0 = document.getElementById("if0");
-            console.log(if0.contentWindow.navigator.userAgent);
-            if0.src = "//player.bilibili.com/player.html?bvid=" + bid;
+        let bid = args['id'] || 'BV1MU4y1h76r';
+        let if0 = document.getElementById("if0");
+        if0.src = "//player.bilibili.com/player.html?bvid=" + bid;
+        let name = args['name'];
+        if (name) {
+            if0.onload = () => document.title = name;
         }
     </script>
 </body>
