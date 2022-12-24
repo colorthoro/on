@@ -62,10 +62,8 @@
         let bid = args['id'] || 'BV1MU4y1h76r';
         let if0 = document.getElementById("if0");
         if0.src = "//player.bilibili.com/player.html?bvid=" + bid;
-        let name = args['name'];
-        if (name) {
-            if0.onload = () => document.title = name;
-        }
+        let name = args['name'] || '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
+        if0.onload = () => document.title = name;
     </script>
 </body>
 
