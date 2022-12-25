@@ -40,7 +40,9 @@
 
             xhr.onload = function () {
                 try {
+                    console.log('onload');
                     var payload = JSON.parse(xhr.response);
+                    console.log(payload);
                     var message = payload.message;
                     var title = payload.title;
 
