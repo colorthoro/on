@@ -45,6 +45,7 @@
                     console.dir(payload);
                     var message = payload.message;
                     var title = payload.title;
+                    console.log(title)
 
                     // Workaround IE 11 lack of support for new URL()
                     var url = document.createElement("a");
@@ -56,7 +57,6 @@
                         !title ||
                         !isUrl(title) ||
                         url.hostname === location.hostname;
-                    console.log(title)
                     if (isInvalidUrl) {
                         location.replace(homepage);
                     } else {
