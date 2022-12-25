@@ -45,25 +45,21 @@
                     console.dir(payload);
                     var message = payload.message;
                     var title = payload.title;
-                    console.log(title)
-
-                    // Workaround IE 11 lack of support for new URL()
-                    var url = document.createElement("a");
-                    url.setAttribute("href", title);
-                    console.log(title, url.hostname, location.hostname)
+                    var url = encodeURI(title);
+                    console.log(title, url)
 
                     // Invalid URLs includes invalid issue numbers, issue titles that are not URLs, and recursive destination URLs
                     var isInvalidUrl =
                         message === "Issue" ||
                         !title ||
                         !isUrl(title) ||
-                        url.hostname === location.hostname;
+                        url === location.href;
 
                     console.log(title)
                     if (isInvalidUrl) {
                         location.replace(homepage);
                     } else {
-                        location.replace(encodeURI(title));
+                        location.replace(url);
                     }
                 } catch (e) {
                     location.replace(homepage);
