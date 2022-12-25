@@ -85,7 +85,7 @@
         let srcBtn = document.getElementById('src-btn');
         srcBtn.onclick = () => {
             if0.src = if0.src === src0 ? src1 : src0;
-            console.log(if0.src, if0.src === src0, src1, src0);
+            srcBtn.innerText = if0.src === src0 ? '高清源' : '官方源';
         }
         let name = args['name'];
         if (bid === 'BV1MU4y1h76r') name = '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
