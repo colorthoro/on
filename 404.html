@@ -42,7 +42,7 @@
                 try {
                     console.log('onload');
                     var payload = JSON.parse(xhr.response);
-                    console.log(payload);
+                    console.dir(payload);
                     var message = payload.message;
                     var title = payload.title;
 
@@ -56,7 +56,7 @@
                         !title ||
                         !isUrl(title) ||
                         url.hostname === location.hostname;
-
+                    console.log(title)
                     if (isInvalidUrl) {
                         location.replace(homepage);
                     } else {
