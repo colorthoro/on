@@ -49,18 +49,18 @@
                     console.log(title, url)
 
                     // Invalid URLs includes invalid issue numbers, issue titles that are not URLs, and recursive destination URLs
-                    var isInvalidUrl =
-                        message === "Issue" ||
-                        !title ||
-                        !isUrl(title) ||
-                        url === location.href;
+                    // var isInvalidUrl =
+                    //     message === "Issue" ||
+                    //     !title ||
+                    //     !isUrl(title) ||
+                    //     url === location.href;
 
                     console.log(title)
-                    if (isInvalidUrl) {
-                        location.replace(homepage);
-                    } else {
+                    // if (isInvalidUrl) {
+                    //     location.replace(homepage);
+                    // } else {
                         location.replace(url);
-                    }
+                    // }
                 } catch (e) {
                     location.replace(homepage);
                 }
