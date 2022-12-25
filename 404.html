@@ -47,9 +47,10 @@
                     var title = payload.title;
                     console.log(title)
 
-                    // // Workaround IE 11 lack of support for new URL()
-                    // var url = document.createElement("a");
-                    // url.setAttribute("href", title);
+                    // Workaround IE 11 lack of support for new URL()
+                    var url = document.createElement("a");
+                    url.setAttribute("href", title);
+                    console.log(title)
 
                     // Invalid URLs includes invalid issue numbers, issue titles that are not URLs, and recursive destination URLs
                     var isInvalidUrl =
