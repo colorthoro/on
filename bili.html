@@ -29,7 +29,8 @@
 
 <body>
     <div class="flex-wrapper">
-        <iframe id="if0" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
+        <iframe id="if0" src="" allowfullscreen="allowfullscreen" width="100%" height="500" scrolling="no"
+            frameborder="0" sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts">
         </iframe>
     </div>
     <script>
@@ -59,12 +60,13 @@
         }
         let args = getQueryStringArgs();
         console.log(args);
-        let bid = args['id'] || 'BV1MU4y1h76r'; 
+        let bid = args['id'] || 'BV1MU4y1h76r';
         let if0 = document.getElementById("if0");
-        if0.src = "//player.bilibili.com/player.html?bvid=" + bid;
+        if0.src = "//player.bilibili.com/player.html?bvid=" + bid + '&high_quality=1';
         let name = args['name'];
         if (bid === 'BV1MU4y1h76r') name = '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
         if (name) if0.onload = () => document.title = name;
     </script>
 </body>
+
 </html>
