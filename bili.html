@@ -43,8 +43,7 @@
 
 <body>
     <div class="flex-wrapper">
-        <iframe id="if0" src="" allowfullscreen="allowfullscreen" width="100%" height="500" scrolling="no"
-            frameborder="0" sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts">
+        <iframe id="if0" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
         </iframe>
         <div id="src-btn" class="fixed-btn transparent">
             换源
@@ -78,13 +77,31 @@
         let args = getQueryStringArgs();
         console.log(args);
         let bid = args['id'] || 'BV1MU4y1h76r';
+
         let if0 = document.getElementById("if0");
+        function openIframe(url) {
+            let oldIframe = document.getElementById("if0");
+            let iframe = document.createElement('iframe');
+            iframe.setAttribute("id", "if0");
+            iframe.setAttribute("scrolling", "no");
+            iframe.setAttribute("border", "0");
+            iframe.setAttribute("frameborder", "no");
+            iframe.setAttribute("framespacing", "0");
+            iframe.setAttribute("allowfullscreen", "true");
+            iframe.src = url;
+            oldIframe.parentNode.insertBefore(iframe, oldIframe);
+            if (!!oldIframe) {
+                oldIframe.src = "about:blank";
+                oldIframe.parentNode.removeChild(oldIframe);
+            }
+            return document.getElementById("if0");
+        }
         src0 = "https://player.bilibili.com/player.html?bvid=" + bid;
         src1 = `https://www.upmso.com/art.php?url=https://www.bilibili.com/video/${bid}/`;
         if0.src = src0;
         let srcBtn = document.getElementById('src-btn');
         srcBtn.onclick = () => {
-            if0.src = if0.src === src0 ? src1 : src0;
+            if0 = openIframe(if0.src === src0 ? src1 : src0);
             srcBtn.innerText = if0.src === src0 ? '高清源' : '官方源';
         }
         let name = args['name'];
