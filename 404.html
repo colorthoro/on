@@ -16,12 +16,6 @@
         /**
          * DO NOT TOUCH ANYTHING BELOW THIS COMMENT UNLESS YOU KNOW WHAT YOU ARE DOING
          */
-        function isUrl(url) {
-            // Regex from https://stackoverflow.com/a/3809435, with a modification to allow for TLDs of up to 24 characters
-            return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,24}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)+$/.test(
-                url
-            );
-        }
 
         function redirect() {
             var location = window.location;
@@ -40,27 +34,14 @@
 
             xhr.onload = function () {
                 try {
-                    console.log('onload');
                     var payload = JSON.parse(xhr.response);
-                    console.dir(payload);
                     var message = payload.message;
+                    if(message = 'Issue'){
+                        throw new Error('Issue not found.');
+                    }
                     var title = payload.title;
                     var url = encodeURI(title);
-                    console.log(title, url)
-
-                    // Invalid URLs includes invalid issue numbers, issue titles that are not URLs, and recursive destination URLs
-                    // var isInvalidUrl =
-                    //     message === "Issue" ||
-                    //     !title ||
-                    //     !isUrl(title) ||
-                    //     url === location.href;
-
-                    console.log(title)
-                    // if (isInvalidUrl) {
-                    //     location.replace(homepage);
-                    // } else {
-                        location.replace(url);
-                    // }
+                    location.replace(url);
                 } catch (e) {
                     location.replace(homepage);
                 }
@@ -69,7 +50,6 @@
             xhr.onerror = function () {
                 location.replace(homepage);
             };
-            console.log(GITHUB_ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27');
             xhr.open("GET",
                 GITHUB_ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27'
             );
