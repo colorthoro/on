@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bilibili ❤ Magic</title>
+    <title>bilibili Magic</title>
     <style>
         * {
             margin: 0;
@@ -27,8 +27,8 @@
 
         .fixed-btn {
             position: fixed;
-            bottom: 15%;
-            right: 10px;
+            top: 80%;
+            left: 10px;
             padding: 5px 10px;
             border-radius: 10px;
             color: white;
@@ -99,10 +99,17 @@
         src0 = "https://player.bilibili.com/player.html?bvid=" + bid;
         src1 = `https://www.upmso.com/art.php?url=https://www.bilibili.com/video/${bid}/`;
         if0.src = src0;
-        let srcBtn = document.getElementById('src-btn');
+        window.srcBtn = document.getElementById('src-btn');
         srcBtn.onclick = () => {
             if0 = openIframe(if0.src === src0 ? src1 : src0);
             srcBtn.innerText = if0.src === src0 ? '高清源' : '官方源';
+        }
+        srcBtn.ontouchmove = (e) => {
+            e.preventDefault();
+            let x = t.touches[0].screenX;
+            let y = t.touches[0].screenY;
+            srcBtn.style.top = x;
+            srcBtn.style.left = y;
         }
         let name = args['name'];
         if (bid === 'BV1MU4y1h76r') name = '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
