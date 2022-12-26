@@ -51,7 +51,6 @@
         <iframe id="if0" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
         </iframe>
         <div id="src-btn" class="fixed-btn transparent">
-            ❤
         </div>
     </div>
     <script
@@ -107,7 +106,7 @@
         src1 = `https://www.upmso.com/art.php?url=https://www.bilibili.com/video/${bid}/`;
         if0.src = src0;
         let srcBtn = document.getElementById('src-btn');
-        let reo = Cowboy.debounce(1000, () => srcBtn.innerText = '❤');
+        let reo = Cowboy.debounce(1000, () => srcBtn.innerText = '');
         srcBtn.onclick = () => {
             if0 = openIframe(if0.src === src0 ? src1 : src0);
             srcBtn.innerText = if0.src === src0 ? '官方' : '高清';
