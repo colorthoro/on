@@ -29,8 +29,12 @@
             position: fixed;
             top: 80%;
             left: 10px;
-            padding: 5px 10px;
-            border-radius: 10px;
+            padding: 10px;
+            min-width: 1rem;
+            min-height: 1rem;
+            line-height: 1rem;
+            text-align: center;
+            border-radius: 50%;
             color: white;
             background-color: gray;
             user-select: none;
@@ -47,9 +51,11 @@
         <iframe id="if0" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
         </iframe>
         <div id="src-btn" class="fixed-btn transparent">
-            换源
+            ❤
         </div>
     </div>
+    <script
+        src="https://cdn.bootcdn.net/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
     <script>
         function getQueryStringArgs() {
             //取得查询字符串并去掉开头的问号
@@ -101,9 +107,11 @@
         src1 = `https://www.upmso.com/art.php?url=https://www.bilibili.com/video/${bid}/`;
         if0.src = src0;
         let srcBtn = document.getElementById('src-btn');
+        let reo = Cowboy.debounce(1000, () => srcBtn.innerText = '❤');
         srcBtn.onclick = () => {
             if0 = openIframe(if0.src === src0 ? src1 : src0);
-            srcBtn.innerText = if0.src === src0 ? '高清源' : '官方源';
+            srcBtn.innerText = if0.src === src0 ? '官方' : '高清';
+            reo();
         }
         document.addEventListener('touchmove', (e) => e.preventDefault());
         srcBtn.ontouchmove = (e) => {
