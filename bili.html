@@ -107,8 +107,8 @@
         }
         srcBtn.ontouchmove = (e) => {
             e.preventDefault();
-            let x = t.touches[0].screenX;
-            let y = t.touches[0].screenY;
+            let x = e.touches[0].screenX;
+            let y = e.touches[0].screenY;
             srcBtn.style.left = x - 10 + 'px';
             srcBtn.style.top = y - 5 + 'px';
         }
