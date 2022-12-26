@@ -51,6 +51,13 @@
         <iframe id="if0" src="" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
         </iframe>
         <div id="src-btn" class="fixed-btn transparent">
+            <span id="src-text"></span>
+            <svg id="svg" style="vertical-align: bottom;" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"
+                data-v-029747aa="">
+                <path fill="currentColor"
+                    d="M764.416 254.72a351.68 351.68 0 0 1 86.336 149.184H960v192.064H850.752a351.68 351.68 0 0 1-86.336 149.312l54.72 94.72-166.272 96-54.592-94.72a352.64 352.64 0 0 1-172.48 0L371.136 936l-166.272-96 54.72-94.72a351.68 351.68 0 0 1-86.336-149.312H64v-192h109.248a351.68 351.68 0 0 1 86.336-149.312L204.8 160l166.208-96h.192l54.656 94.592a352.64 352.64 0 0 1 172.48 0L652.8 64h.128L819.2 160l-54.72 94.72zM704 499.968a192 192 0 1 0-384 0 192 192 0 0 0 384 0z">
+                </path>
+            </svg>
         </div>
     </div>
     <script
@@ -106,10 +113,16 @@
         src1 = `https://www.upmso.com/art.php?url=https://www.bilibili.com/video/${bid}/`;
         if0.src = src0;
         let srcBtn = document.getElementById('src-btn');
-        let reo = Cowboy.debounce(1000, () => srcBtn.innerText = '');
+        let srcText = document.getElementById('src-text');
+        let svg = document.getElementById('svg');
+        let reo = Cowboy.debounce(1000, () => {
+            srcText.innerText = '';
+            svg.style.display = 'unset';
+        });
         srcBtn.onclick = () => {
             if0 = openIframe(if0.src === src0 ? src1 : src0);
-            srcBtn.innerText = if0.src === src0 ? '官方' : '高清';
+            svg.style.display = 'none';
+            srcText.innerText = if0.src === src0 ? '官方' : '高清';
             reo();
         }
         document.addEventListener('touchmove', (e) => e.preventDefault());
