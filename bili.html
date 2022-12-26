@@ -119,10 +119,11 @@
             srcText.innerText = '';
             svg.style.display = 'unset';
         });
+        let love = ['I', 'L', 'O', 'V', 'E', 'L', 'G', 'X'], ilove = 0;
         srcBtn.onclick = () => {
             if0 = openIframe(if0.src === src0 ? src1 : src0);
             svg.style.display = 'none';
-            srcText.innerText = if0.src === src0 ? 'B' : 'U';
+            srcText.innerText = love[ilove++ % love.length];
             reo();
         }
         document.addEventListener('touchmove', (e) => e.preventDefault());
