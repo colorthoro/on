@@ -105,10 +105,11 @@
             if0 = openIframe(if0.src === src0 ? src1 : src0);
             srcBtn.innerText = if0.src === src0 ? '高清源' : '官方源';
         }
+        document.addEventListener('touchmove', (e) => e.preventDefault());
         srcBtn.ontouchmove = (e) => {
             e.preventDefault();
-            let x = e.touches[0].screenX;
-            let y = e.touches[0].screenY;
+            let x = e.touches[0].clientX;
+            let y = e.touches[0].clientY;
             srcBtn.style.left = x - 10 + 'px';
             srcBtn.style.top = y - 5 + 'px';
         }
