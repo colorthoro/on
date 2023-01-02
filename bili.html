@@ -60,6 +60,13 @@
                 </path>
             </svg>
         </div>
+        <div id="src-btn" onclick="" class="fixed-btn transparent" style="top:90%">
+            <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-029747aa="">
+                <path fill="currentColor"
+                    d="m64 448 832-320-128 704-446.08-243.328L832 192 242.816 545.472 64 448zm256 512V657.024L512 768 320 960z">
+                </path>
+            </svg>
+        </div>
     </div>
     <script
         src="https://cdn.bootcdn.net/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js"></script>
@@ -90,7 +97,7 @@
         }
         let args = getQueryStringArgs();
         console.log(args);
-        let bid = args['id'] || 'BV1MU4y1h76r';
+        var bid = args['id'] || 'BV1MU4y1h76r';
 
         let if0 = document.getElementById("if0");
         function openIframe(url) {
@@ -138,6 +145,11 @@
         let name = args['name'];
         if (bid === 'BV1MU4y1h76r') name = '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
         if (name) if0.onload = () => document.title = name;
+    </script>
+    <script>
+        function openBili() {
+            window.location.href = "bilibili://video/" + bid;
+        }
     </script>
 </body>
 
