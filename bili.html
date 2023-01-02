@@ -149,8 +149,7 @@
     </script>
     <script>
         function openBili() {
-            console.log("bilibili://video/" + bid)
-            window.location.href = "bilibili://video/" + bid;
+            window.location.href = `bilibili://video?bvid=${bid}`;
         }
     </script>
 </body>
