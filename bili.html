@@ -135,14 +135,6 @@
             srcText.innerText = love[ilove++ % love.length];
             reo();
         }
-        document.addEventListener('touchmove', (e) => e.preventDefault());
-        srcBtn.ontouchmove = (e) => {
-            e.preventDefault();
-            let x = e.touches[0].clientX;
-            let y = e.touches[0].clientY;
-            srcBtn.style.left = x - 10 + 'px';
-            srcBtn.style.top = y - 5 + 'px';
-        }
         let name = args['name'];
         if (bid === 'BV1MU4y1h76r') name = '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
         if (name) if0.onload = () => document.title = name;
