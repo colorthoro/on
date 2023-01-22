@@ -253,9 +253,12 @@
         // if( !document.hasFocus() ) return; 
         if (window.fireoff) {
             console.log('fireworks show finished');
-            cancelAnimationFrame(id);
-            document.body.removeChild(renderer.domElement);
-            return;
+            try {
+                window.cancelAnimationFrame(id);
+                document.body.removeChild(renderer.domElement);
+            } finally {
+                return;
+            }
         }
 
         // add fireworks 
