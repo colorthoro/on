@@ -25,6 +25,9 @@
         },
         // mouse info 
         mouse: function (e) {
+            if (e instanceof TouchEvent) {
+                e = e.touches?.[0];
+            }
             var x = Math.max(0, e.pageX || e.clientX || 0);
             var y = Math.max(0, e.pageY || e.clientY || 0);
             var s = this.screen();
@@ -201,9 +204,12 @@
 
     // on mouse move
     function onMouse(e) {
+        e.preventDefault();
         var mouse = Utils.mouse(e);
         to.px = (mouse.centerx * 0.95);
         to.py = -(mouse.centery * 0.95);
+        to.pz = (mouse.centery * 2 + 200);
+        console.log(to.pz);
     };
 
     // on click/tap 
@@ -233,6 +239,7 @@
         renderer.domElement.style["z-index"] = "999";
 
         window.addEventListener("resize", onResize, false);
+        window.addEventListener('touchmove', onMouse, { passive: false });
         window.fireoff = false;
         window.addEventListener("click", function () { this.window.fireoff = true; }, false);
 
