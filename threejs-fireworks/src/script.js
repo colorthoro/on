@@ -254,8 +254,8 @@
         if (window.fireoff) {
             console.log('fireworks show finished');
             try {
-                window.cancelAnimationFrame(id);
                 document.body.removeChild(renderer.domElement);
+                window.cancelAnimationFrame(id);
             } finally {
                 return;
             }
