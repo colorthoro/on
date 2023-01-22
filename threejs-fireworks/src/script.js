@@ -181,7 +181,7 @@
         renderer = null,
         camera = null,
         scene = null,
-        to = { px: 0, py: 0, pz: 500 },
+        to = { px: 0, py: 450, pz: 200 },
         fireworks = [];
 
     try {
@@ -209,7 +209,6 @@
         to.px = (mouse.centerx * 0.95);
         to.py = -(mouse.centery * 0.95);
         to.pz = (mouse.centery * 2 + 200);
-        console.log(to.pz);
     };
 
     // on click/tap 
