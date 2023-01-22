@@ -181,7 +181,7 @@
         renderer = null,
         camera = null,
         scene = null,
-        to = { px: 0, py: 450, pz: 200 },
+        to = { px: 0, py: 200, pz: 400 },
         fireworks = [];
 
     try {
@@ -239,10 +239,12 @@
 
         window.addEventListener("resize", onResize, false);
         window.addEventListener('touchmove', onMouse, { passive: false });
-        window.fireoff = false;
+        window.fireoff = false, window.finish = false;
         window.addEventListener("click", function () { this.window.fireoff = true; }, false);
+        setTimeout(() => window.finish = true, 3000);
 
         document.body.appendChild(renderer.domElement);
+
     };
 
     // animation loop 
@@ -251,7 +253,7 @@
 
         // if( !document.hasFocus() ) return; 
         if (window.fireoff) {
-            console.log('fireworks show finished');
+            console.log('fireoff');
             try {
                 document.body.removeChild(renderer.domElement);
                 window.cancelAnimationFrame(id);
@@ -261,7 +263,7 @@
         }
 
         // add fireworks 
-        if (THREE.Math.randInt(1, 20) === 10) {
+        if (!window.finish && THREE.Math.randInt(1, 20) === 10) {
             fireworks.push(new Firework(scene));
         }
         // update fireworks 
@@ -272,6 +274,15 @@
                 continue;
             }
             fireworks[i].update();
+        }
+        if (window.finish && fireworks.length === 0) {
+            console.log('finish');
+            try {
+                document.body.removeChild(renderer.domElement);
+                window.cancelAnimationFrame(id);
+            } finally {
+                return;
+            }
         }
 
         // lerp camera position 
