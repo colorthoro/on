@@ -90,7 +90,7 @@
             var to = new THREE.Vector3(x, y, z);
 
             var color = new THREE.Color();
-            color.setHSL(THREE.Math.randFloat(0, 0.2), 1, 0.9);
+            color.setHSL(THREE.Math.randFloat(-0.16, 0.22), 1, 0.9);
             this.colors.push(color);
 
             this.geometry = new THREE.Geometry();
@@ -113,7 +113,7 @@
 
             for (var i = 0; i < 80; i++) {
                 var color = new THREE.Color();
-                color.setHSL(THREE.Math.randFloat(0, 0.2), 1, 0.5);
+                color.setHSL(THREE.Math.randFloat(-0.16, 0.22), 1, 0.5);
                 this.colors.push(color);
 
                 var from = new THREE.Vector3(
