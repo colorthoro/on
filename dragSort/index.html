@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖拽排序测试</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .controll {
+            margin: 10px;
+            text-align: center;
+        }
+
+        .draggable-list {
+            width: 200px;
+        }
+
+        .draggable-list-item {
+            height: 2em;
+            margin-top: 5px;
+            border: 1px solid gray;
+            text-align: center;
+            line-height: 2em;
+            border-radius: 5px;
+            background-color: bisque;
+        }
+
+        .draggable-list-item.moving {
+            background-color: skyblue;
+            border: 2px dashed #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="controll">
+            <label for="cnt">个数</label><br><input type="text" id="cnt" value="6"><br>
+            <label for="data">数组</label><br><textarea name="data" id="data" cols="30" rows="10"></textarea>
+        </div>
+        <div id="alist" class="draggable-list">
+            <div class="draggable-list-item" draggable="true">1</div>
+            <div class="draggable-list-item" draggable="true">2</div>
+            <div class="draggable-list-item" draggable="true">3</div>
+            <div class="draggable-list-item" draggable="true">4</div>
+            <div class="draggable-list-item" draggable="true">5</div>
+        </div>
+    </div>
+    <script src="./dragSort.js"></script>
+    <script>
+        let numEl = document.getElementById('cnt');
+        let dataEl = document.getElementById('data');
+        let listEl = document.querySelector('.draggable-list');
+
+        var a = new DraggableList(listEl);
+        var arr = [1, 2, 3];
+        var reArr = a.bindArr(arr);
+
+        // 拖动列表导致数组更新，使用事件实现
+        a.on('changed', data => {
+            numEl.value = data.length;
+        });
+        a.on('changed', data => {
+            dataEl.value = JSON.stringify(data);
+        });
+
+        // 数组更新导致列表更新，使用代理实现
+        numEl.onchange = e => {
+            let temp = Array.from({ length: e.target.value }, (_, k) => k);
+            temp.forEach((v, i) => reArr[i] = v);
+            reArr.length = temp.length;
+        }
+        dataEl.onchange = e => {
+            let data = JSON.parse(e.target.value);
+            if (data instanceof Array) {
+                data.forEach((v, i) => reArr[i] = v);
+                reArr.length = data.length;
+            }
+        }
+
+        numEl.value = 1;
+        numEl.dispatchEvent(new Event('change'));
+
+        (async () => {
+            let flag = 1, off = false;
+            setTimeout(() => off = true, 50 * 30);
+            while (1) {
+                await new Promise(ok => setTimeout(ok, 50));
+                if (flag) reArr[reArr.length] = reArr.length;
+                else reArr.length -= 1;
+                if (reArr.length == 1 || reArr.length == 10) flag = flag ^ 1;
+                if (off) break;
+            }
+        })();
+    </script>
+</body>
+
+</html>
