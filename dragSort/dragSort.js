@@ -78,6 +78,18 @@ DraggableList.prototype = {
                 this.transitionIn(this.arr[j]);
                 [this.arr[i], this.arr[j]] = [this.arr[j], this.arr[i]];
             },
+            moveTo: (i, j) => {  // i 移到 j
+                if (!this.arr[i] || !this.arr[j] || i === j) return;
+                let f = i < j ? 1 : -1;
+                this.recordItems([this.arr[i]]);
+                for (let k = i + f; (f == 1 ? k <= j : k >= j); k += f) {
+                    this.recordItems([this.arr[k]]);
+                    this.positionUpdate(f == 1 ? k - f : k - 2 * f, this.arr[k]);
+                    this.transitionIn(this.arr[k]);
+                }
+                this.transitionIn(this.arr[i]);
+                Array.prototype.splice.call(this.arr, j, 0, ...Array.prototype.splice.call(this.arr, i, 1))
+            },
             unshift: (...items) => {
                 this.recordItems(this.arr);
                 items = items.map(item => this.createEl(
@@ -189,7 +201,7 @@ DraggableList.prototype = {
         if (e.target === this.listEl || e.target === this.draggingEl) return false;
         let i = this.arr.indexOf(e.target._item),
             j = this.arr.indexOf(this.draggingEl._item);
-        if (Math.abs(i - j) < 2) this.arr.swap(i, j);
+        this.arr.moveTo(j, i);
     },
     _ondragover(e) {
         e.preventDefault();
