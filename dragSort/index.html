@@ -19,6 +19,7 @@
 
         .draggable-list {
             width: 200px;
+            margin: 10px;
         }
 
         .draggable-list-item {
@@ -42,7 +43,19 @@
     <div class="container">
         <div class="controll">
             <label for="cnt">个数</label><br><input type="text" id="cnt" value="6"><br>
-            <label for="data">数组</label><br><textarea name="data" id="data" cols="30" rows="10"></textarea>
+            <label for="data">数组</label><br><textarea name="data" id="data" cols="30" rows="2"></textarea>
+            <br><button onclick="reArr.reverse()">反转</button><br>reArr.reverse()
+            <br><button onclick="reArr.sort()">增序</button><br>reArr.sort()
+            <br><button onclick="reArr.shift()">去头</button><br>reArr.shift()
+            <br><button onclick="reArr.pop()">去尾</button><br>reArr.pop()
+            <br><button onclick="reArr.unshift(166)">头插</button><br>reArr.unshift(...items)
+            <br><button onclick="reArr.push(168)">尾插</button><br>reArr.push(...items)
+            <br><button
+                onclick="reArr.splice(parseInt(Math.random()*reArr.length),1)">随机删除</button><br>reArr.splice(i,1)
+            <br><button
+                onclick="reArr.splice(parseInt(Math.random()*reArr.length),0,(Math.random()*100).toFixed(0))">随机插入</button><br>reArr.splice(i,0,...items)
+            <br><button
+                onclick="reArr.swap(parseInt(Math.random()*reArr.length),parseInt(Math.random()*reArr.length))">随机交换</button><br>reArr.swap(i,j)
         </div>
         <div id="alist" class="draggable-list">
             <div class="draggable-list-item" draggable="true">1</div>
@@ -50,6 +63,19 @@
             <div class="draggable-list-item" draggable="true">3</div>
             <div class="draggable-list-item" draggable="true">4</div>
             <div class="draggable-list-item" draggable="true">5</div>
+        </div>
+        <div id="blist" class="draggable-list">
+            <div class="draggable-list-item" draggable="true">1</div>
+            <div class="draggable-list-item" draggable="true">2</div>
+            <div class="draggable-list-item" draggable="true">3</div>
+            <div class="draggable-list-item" draggable="true">4</div>
+            <div class="draggable-list-item" draggable="true">5</div>
+            <span>let testReArr =
+                <br>&nbsp;&nbsp;new DraggableList(
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById('blist'))
+                <br>&nbsp;&nbsp;&nbsp;&nbsp;.bindArr([1,2,3]
+                <br>&nbsp;&nbsp;);
+            </span>
         </div>
     </div>
     <script src="./dragSort.js"></script>
@@ -73,13 +99,13 @@
         // 数组更新导致列表更新，使用代理实现
         numEl.onchange = e => {
             let temp = Array.from({ length: e.target.value }, (_, k) => k);
-            temp.forEach((v, i) => reArr[i] = v);
+            Object.assign(reArr, temp);
             reArr.length = temp.length;
         }
         dataEl.onchange = e => {
             let data = JSON.parse(e.target.value);
             if (data instanceof Array) {
-                data.forEach((v, i) => reArr[i] = v);
+                Object.assign(reArr, data);
                 reArr.length = data.length;
             }
         }
@@ -94,7 +120,7 @@
                 await new Promise(ok => setTimeout(ok, 50));
                 if (flag) reArr[reArr.length] = reArr.length;
                 else reArr.length -= 1;
-                if (reArr.length == 1 || reArr.length == 10) flag = flag ^ 1;
+                if (reArr.length <= 1 || reArr.length >= 10) flag = flag ^ 1;
                 if (off) break;
             }
         })();

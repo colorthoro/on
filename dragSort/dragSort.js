@@ -13,11 +13,10 @@ const MyEvent = {
     }
 };
 
-
 /**
  * 
  * @param {HTMLElement} el 
- * @param {Array} dataArr 
+ * @param {Array} arr 
  */
 function DraggableList(el) {
     el.classList.add('draggable-list');
@@ -26,32 +25,160 @@ function DraggableList(el) {
             el[fn.slice(1)] = this[fn].bind(this);
         }
     }
+    el.replaceChildren();
     this.listEl = el;
-    // this.dataArr = undefined;
-    // this.draggingEl = undefined;
 }
 
 DraggableList.prototype = {
     constructor: DraggableList,
-    bindArr(dataArr) {
-        let items = dataArr.map(v => this.createItem(v));
-        this.listEl.replaceChildren(...items);
-        this.dataArr = dataArr;
-        return new Proxy(dataArr, {
-            set: (_, key, value) => {
-                this.sourceUpdate(key, value);
-                return Reflect.set(...arguments);
+    bindArr(arr) {
+        if (!arr instanceof Array) {
+            console.error(arr, 'is not an Array object.');
+            return;
+        }
+
+        this.arr = arr = arr.map(item => this.createEl({ value: item }));
+        let proxy = new Proxy(arr, {
+            set: (target, property, value) => {
+                // console.log(target, property, value);
+                if (/^\d+$/.test(property)) {
+                    if (target[property] === undefined) {
+                        target[property] = { value };
+                        // console.log('add', property, value);
+                        this.createEl(target[property]);
+                    } else {
+                        // console.log('directlyUpdate', property, target[property], value);
+                        target[property].value = value;
+                        this.directlyUpdate(target[property]);
+                    }
+                } else if (property === 'length') {
+                    target[property] = value;
+                    while (this.listEl.children.length > value) {
+                        this.listEl.removeChild(this.listEl.lastElementChild);
+                    }
+                }
+                this.emit('changed', this.proxy);
+                return true;
+            },
+            get(target, property) {
+                if (/^\d+$/.test(property)) {
+                    return target[property]?.value;
+                } else return target[property];
+            },
+        });
+
+        let methods = {
+            swap: (i, j) => {
+                if (!this.arr[i] || !this.arr[j] || i === j) return;
+                this.recordItems([this.arr[i], this.arr[j]]);
+                if (i > j) [i, j] = [j, i];
+                this.positionUpdate(i, this.arr[j]);
+                this.transitionIn(this.arr[i]);
+                this.positionUpdate(j + 1, this.arr[i]);
+                this.transitionIn(this.arr[j]);
+                [this.arr[i], this.arr[j]] = [this.arr[j], this.arr[i]];
+            },
+            unshift: (...items) => {
+                this.recordItems(this.arr);
+                items = items.map(item => this.createEl(
+                    { value: item }, this.listEl.firstElementChild)
+                );
+                Array.prototype.unshift.apply(this.arr, items);
+                this.updateAll();
+            },
+            shift: () => {
+                this.recordItems(this.arr);
+                this.listEl.removeChild(this.listEl.firstElementChild);
+                Array.prototype.shift.apply(this.arr);
+                this.updateAll();
+            },
+            splice: (start, length, ...items) => {
+                this.recordItems(this.arr);
+                for (let i = 0; i < length; i++)this.listEl.removeChild(this.listEl.children[start]);
+                if (items) items = items.map(item => this.createEl(
+                    { value: item }, this.listEl.children[start])
+                );
+                Array.prototype.splice.call(this.arr, start, length, ...items);
+                this.updateAll();
+            },
+            reverse: () => {
+                this.recordItems(this.arr);
+                Array.prototype.reverse.apply(this.arr);
+                this.updateAll();
+            },
+            sort: () => {
+                this.recordItems(this.arr);
+                Array.prototype.sort.call(this.arr, (a, b) => {
+                    return a.value - b.value;
+                });
+                this.updateAll();
             }
-        })
+        }
+
+        for (let m in methods) {
+            arr[m] = new Proxy(methods[m], {
+                apply: (target, _, args) => {
+                    target(...args);
+                    this.emit('changed', this.proxy);
+                }
+            });
+        }
+        this.proxy = proxy;
+        return proxy;
+    },
+    createEl(item, beforeNode) {
+        if (item.el) return;
+        let dom = document.createElement('div');
+        dom.classList.add('draggable-list-item');
+        dom.draggable = true;
+        dom.innerText = item.value;
+        dom._item = item;
+        if (!beforeNode) this.listEl.appendChild(dom);
+        else this.listEl.insertBefore(dom, beforeNode);
+        item.el = dom;
+        this.transitionIn(item);
+        return item;
+    },
+    directlyUpdate(item) {
+        item.el.innerText = item.value;
+    },
+    positionUpdate(key, item) {
+        if (this.listEl.children[key] === item.el) return;
+        let res = this.listEl.insertBefore(item.el, this.listEl.children[key]);
+        // console.log(key, item, res);
+    },
+    updateAll() {
+        this.arr.forEach((item, i) => {
+            this.positionUpdate(i, item);
+            this.transitionIn(item);
+        });
+    },
+    recordItems(items) {
+        items.forEach(item => {
+            const { top, left } = item.el.getBoundingClientRect();
+            item.pos = { top, left };
+        });
+    },
+    transitionIn(item) {
+        const dom = item.el;
+        const { top, left } = dom.getBoundingClientRect();
+        const pos = item.pos || { top, left: left + 50 };
+        if (pos) {
+            dom.style.transform = `translate3d(${pos.left - left}px,${pos.top - top}px,0px)`;
+            setTimeout(() => {
+                dom.style.transition = `transform 0.1s ease-out`;
+                dom.style.transform = 'none';
+            }, 10);
+            !dom.ontransitionend && (dom.ontransitionend = () => {
+                dom.style.transition = 'unset';
+            });
+        }
     },
     _ondragstart(e) {
-        // 获取当前拖动的元素
         this.draggingEl = e.target;
-        // 添加moving样式
         setTimeout(() => {
             e.target.classList.add('moving');
         }, 0);
-        // 设置被拖动元素允许移动到新的位置
         e.dataTransfer.effectAllowed = 'move';
     },
     _ondragend(e) {
@@ -59,94 +186,13 @@ DraggableList.prototype = {
     },
     _ondragenter(e) {
         e.preventDefault();
-        // 拖回到原来的位置，就什么也不做
-        if (e.target === this.listEl || e.target === this.draggingEl) {
-            return false;
-        }
-        // 记录起始位置
-        this.record([e.target, this.draggingEl]);
-        // 获取所有子元素
-        const children = Array.from(this.listEl.children);
-        // 当前劫持元素的索引值
-        const sourceIndex = children.indexOf(this.draggingEl);
-        // 覆盖到谁上面的索引值
-        const targetIndex = children.indexOf(e.target);
-        if (sourceIndex < targetIndex) {
-            // insertBefore(要插入的节点，在谁前面)
-            this.listEl.insertBefore(this.draggingEl, e.target.nextElementSibling);
-        } else {
-            this.listEl.insertBefore(this.draggingEl, e.target);
-        }
-        // 同步改变绑定的数组，并在DraggableList对象上触发changed事件
-        this.dataArr.splice(targetIndex, 0, ...this.dataArr.splice(sourceIndex, 1));
-        this.emit('changed', this.dataArr);
-        // 传入改变位置的两个元素，比较差异，执行动画
-        this.last([e.target, this.draggingEl]);
+        if (e.target === this.listEl || e.target === this.draggingEl) return false;
+        let i = this.arr.indexOf(e.target._item),
+            j = this.arr.indexOf(this.draggingEl._item);
+        if (Math.abs(i - j) < 2) this.arr.swap(i, j);
     },
     _ondragover(e) {
         e.preventDefault();
     },
-    // 记录起始位置
-    record(eleAll) {
-        for (let i = 0; i < eleAll.length; i++) {
-            const dom = eleAll[i];
-            const { top, left } = dom.getBoundingClientRect();
-            dom._top = top;
-            dom._left = left;
-        }
-    },
-    // 记录最后的位置，并执行动画
-    last(eleAll) {
-        function cancelRaf(dom) {
-            cancelAnimationFrame(dom._rafId);
-            dom._rafId = 0;
-        }
-
-        for (let i = 0; i < eleAll.length; i++) {
-            const dom = eleAll[i];
-            const { top, left } = dom.getBoundingClientRect();
-            if (dom._left) {
-                // 动画过程中使用了insertBefore，说明短时间内在往复拖动，就提前结束动画再记录起始位置
-                if (dom._rafId) {
-                    dom.style.transition = 'unset';
-                    cancelRaf(dom);
-                    this.record([dom]);
-                }
-                dom.style.transform = `translate3d(${dom._left - left}px,${dom._top - top}px,0px)`;
-                dom._rafId = requestAnimationFrame(function () {
-                    dom.style.transition = `transform 0.1s ease-out`;
-                    dom.style.transform = 'none';
-                });
-                dom.addEventListener('transitionend', () => {
-                    dom.style.transition = 'unset';
-                    cancelRaf(dom);
-                });
-            }
-        }
-    },
-    // 绑定的源数组发生更新时
-    sourceUpdate(key, value) {
-        if (key >= this.listEl.children.length) {
-            let item = this.createItem(value);
-            this.dataArr.push(value);
-            this.listEl.appendChild(item);
-        } else if (key === 'length') {
-            while (this.listEl.children.length > value) {
-                this.listEl.removeChild(this.listEl.lastElementChild);
-            }
-            this.dataArr.length = value;
-        } else {
-            this.listEl.children[key].innerText = value;
-            this.dataArr[key] = value;
-        }
-        this.emit('changed', this.dataArr);
-    },
-    createItem(value) {
-        let item = document.createElement('div');
-        item.classList.add('draggable-list-item');
-        item.draggable = true;
-        item.innerText = value;
-        return item;
-    }
 }
 Object.assign(DraggableList.prototype, MyEvent);
