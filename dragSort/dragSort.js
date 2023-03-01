@@ -43,9 +43,11 @@ DraggableList.prototype = {
                 // console.log(target, property, value);
                 if (/^\d+$/.test(property)) {
                     if (target[property] === undefined) {
-                        target[property] = { value };
                         // console.log('add', property, value);
-                        this.createEl(target[property], target[value + 1]?.el);
+                        for (let i = target.length; i <= property; i++) {
+                            target[i] = { value: i == property ? value : '' };
+                            this.createEl(target[i]);
+                        }
                     } else {
                         // console.log('directlyUpdate', property, target[property], value);
                         target[property].value = value;
@@ -126,7 +128,6 @@ DraggableList.prototype = {
                 this.updateAll();
             }
         }
-
         for (let m in methods) {
             arr[m] = new Proxy(methods[m], {
                 apply: (target, _, args) => {
@@ -135,6 +136,7 @@ DraggableList.prototype = {
                 }
             });
         }
+        
         this.proxy = proxy;
         return proxy;
     },
