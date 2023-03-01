@@ -45,7 +45,7 @@ DraggableList.prototype = {
                     if (target[property] === undefined) {
                         target[property] = { value };
                         // console.log('add', property, value);
-                        this.createEl(target[property]);
+                        this.createEl(target[property], target[value + 1]?.el);
                     } else {
                         // console.log('directlyUpdate', property, target[property], value);
                         target[property].value = value;
