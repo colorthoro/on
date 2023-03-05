@@ -1,6 +1,6 @@
 {
   "name": "dragsortmagic",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "使用代理和事件监听来与数组双向绑定的拖拽排序小组件",
   "keywords": ["drag", "sort", "原生JS", "independent", "array"],
   "main": "dragSort.js",
