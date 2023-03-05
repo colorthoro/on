@@ -1,0 +1,11 @@
+{
+  "name": "dragsortmagic",
+  "version": "1.0.0",
+  "description": "使用代理和事件监听来与数组双向绑定的拖拽排序小组件",
+  "main": "dragSort.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

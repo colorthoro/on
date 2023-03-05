@@ -136,7 +136,7 @@ DraggableList.prototype = {
                 }
             });
         }
-        
+
         this.proxy = proxy;
         return proxy;
     },
@@ -210,3 +210,4 @@ DraggableList.prototype = {
     },
 }
 Object.assign(DraggableList.prototype, MyEvent);
+module.exports.DraggableList = DraggableList;
