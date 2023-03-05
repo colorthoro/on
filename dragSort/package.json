@@ -1,8 +1,9 @@
 {
   "name": "dragsortmagic",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "使用代理和事件监听来与数组双向绑定的拖拽排序小组件",
   "main": "dragSort.js",
+  "homepage": "https://colorthoro.github.io/onJS/dragSort/example/",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
