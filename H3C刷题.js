@@ -14,7 +14,7 @@ myFrame(location.href, async (frame) => {
         item.querySelectorAll('div.cs-test-option:nth-child(2n)').forEach(option => {
             option.click();
         })
-    })
+    });
     await new Promise(ok => setTimeout(ok, 500));
     doc.querySelectorAll('#goNext')[0].click();
     await new Promise(ok => setTimeout(ok, 500));
