@@ -21,7 +21,9 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         type:'select',
         proxies
     });
-    obj.rules.push('DOMAIN-KEYWORD,openai.com,☝openai');
+    [].filter((v)=>!v.includes(',google,'))
+    obj.rules.unshift('DOMAIN-KEYWORD,openai.com,☝openai');
+    obj.rules.unshift('DOMAIN-KEYWORD,google,☝openai');
     notify('预处理', `成功添加 ☝openai 规则`);
     console.log('预处理成功')
     return yaml.stringify(obj)
@@ -48,7 +50,9 @@ parsers:
             type:'select',
             proxies
         });
-        obj.rules.push('DOMAIN-KEYWORD,openai.com,☝openai');
+        [].filter((v)=>!v.includes(',google,'))
+        obj.rules.unshift('DOMAIN-KEYWORD,openai.com,☝openai');
+        obj.rules.unshift('DOMAIN-KEYWORD,google,☝openai');
         notify('预处理', `成功添加 ☝openai 规则`);
         console.log('预处理成功')
         return yaml.stringify(obj)
