@@ -1,3 +1,24 @@
+async function refreshFrame(src, sec, win=window){
+    let frame = `<frameset cols='*'>\n<frame id='refreshFrame' src='${src}' ></frameset>`;
+    win.document.write(frame);
+    sleep = async(t)=>await new Promise(ok=>setTimeout(ok, t*1000));
+    while(1){
+        ele = win.document.getElementById('refreshFrame');
+        cw = ele.contentWindow;
+        console.log('work1')
+        await sleep(10);
+        console.log('work2')
+        cw.document.querySelector('.vj-button').click();
+        console.log('work3')
+        await sleep(sec);
+        cw.location.reload();
+        console.log('workok')
+    }
+}
+refreshFrame(location.href, 3);
+
+
+
 // 呼出做题界面的控制台，直接粘贴
 function inFrame(src, func, id = 'inFrame-1', ppp = window) {
     let frame = `<frameset cols='*'>\n<frame id='${id}' src='${src}' ></frameset>`;
