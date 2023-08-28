@@ -300,7 +300,7 @@ const ptr = function (addr, mask) {
     return reverse.slice(0, (128 - mask) / 4).join('.');
 };
 
-export default {
+export {
     normalize,
     abbreviate,
     validate,
