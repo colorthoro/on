@@ -198,10 +198,4 @@ Netmask = (function () {
 
 })();
 
-exports.ip2long = ip2long;
-
-exports.long2ip = long2ip;
-
-exports.Netmask = Netmask;
-
 export { Netmask, ip2long, long2ip }
