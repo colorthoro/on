@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bilibili Magic</title>
     <script src="./part3/artplayer.js"></script>
+    <script src="./part3/artplayer-plugin-danmuku.js"></script>
     <style>
         body {
             margin: 0;
@@ -78,6 +79,7 @@
             const art = new Artplayer({
                 container: '.artplayer-app',
                 url: window.url,
+                poster: base + '/pic?bid=' + bid,
                 quality,
                 autoplay: true,
                 autoPlayback: true,
@@ -97,6 +99,17 @@
                 autoOrientation: true,
                 airplay: true,
                 theme: '#00a1d6',
+                icons: {
+                    loading: '<img src="/assets/img/ploading.gif">',
+                    state: '<img width="150" heigth="150" src="/assets/img/state.svg">',
+                    indicator: '<img width="16" heigth="16" src="/assets/img/indicator.svg">',
+                },
+                plugins: [
+                    artplayerPluginDanmuku({
+                        // 弹幕数组
+                        danmuku: () => fetch(base + '/danmu?bid=' + bid).then(res => res.json()),
+                    }),
+                ],
             });
             window.art = art;
             art.fullscreenWeb = true;
