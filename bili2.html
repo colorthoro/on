@@ -10,6 +10,7 @@
         body {
             margin: 0;
             padding: 0;
+            background-color: black;
         }
 
         .artplayer-app {
@@ -55,41 +56,51 @@
         }, 1000)
     </script>
     <script>
-        let url = 'http://1j28757481.eicp.vip:5678/bili?bid=' + bid;
-        const art = new Artplayer({
-            container: '.artplayer-app',
-            url,
-            quality: [
-                {
-                    html: '4K',
-                    url: url + '&vq=128',
-                },
-                {
-                    default: true,
-                    html: '1080P+',
-                    url,
-                },
-                {
-                    html: '720P',
-                    url: url + '&vq=64',
+        let base = 'http://1j28757481.eicp.vip:5678';
+        base = 'http://localhost:5678';
+        let qualities = base + '/qualities?bid=' + bid;
+        let url = base + '/bili?bid=' + bid;
+        window.url = url;
+
+        fetch(qualities).then(res => res.json()).then(marks => {
+            window.marks = marks;
+            console.log(marks);
+            let quality = Array.prototype.map.call(marks, (mark, i, self) => {
+                let default_ = false, url = window.url + '&vq=' + mark;
+                if (i == Math.floor(self.length / 2)) {
+                    default_ = true;
+                    window.url = url;
                 }
-            ],
-            autoplay: true,
-            loop: true,
-            flip: true,
-            playbackRate: true,
-            fastForward: true,
-            lock: true,
-            aspectRatio: true,
-            setting: true,
-            hotkey: true,
-            pip: true,
-            fullscreen: true,
-            playsInline: true,
-            autoOrientation: true,
-            airplay: true,
-            theme: '#00a1d6',
-        });
+                return { default: default_, html: mark, url }
+            });
+            window.quality = quality;
+            console.log(quality);
+            const art = new Artplayer({
+                container: '.artplayer-app',
+                url: window.url,
+                quality,
+                autoplay: true,
+                autoPlayback: true,
+                loop: true,
+                flip: true,
+                playbackRate: true,
+                fastForward: true,
+                lock: true,
+                aspectRatio: true,
+                setting: true,
+                hotkey: true,
+                pip: true,
+                screenshot: true,
+                fullscreen: true,
+                fullscreenWeb: true,
+                playsInline: true,
+                autoOrientation: true,
+                airplay: true,
+                theme: '#00a1d6',
+            });
+            window.art = art;
+            art.fullscreenWeb = true;
+        })
     </script>
 </body>
 
