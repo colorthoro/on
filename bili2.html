@@ -142,10 +142,10 @@
             let danmu_config = localStorage.getItem('danmu_config');
             danmu_config = danmu_config ? JSON.parse(danmu_config) : {};
             art.plugins.add(artplayerPluginDanmuku({
-                fontSize: 15.2,
+                heatmap: true,
                 // 弹幕数组
                 danmuku: () => fetch(base + '/danmu?bid=' + bid).then(res => res.json()), ...danmu_config
-            }))
+            }));
             if (localStorage.getItem('danmu_on') == '0') {
                 art.plugins.artplayerPluginDanmuku.hide();
             }
@@ -154,7 +154,7 @@
                 if (modify) return;
                 option.fontSize = option.fontSize - 10;
                 console.info('配置变化', option);
-                let needs = ['speed', 'opacity', 'fontSize', 'color', 'mode', 'margin', 'antiOverlap', 'synchronousPlayback', 'heatmap']
+                let needs = ['speed', 'opacity', 'fontSize', 'color', 'mode', 'margin', 'antiOverlap', 'synchronousPlayback']
                 let config = {};
                 for (let key of needs) { config[key] = option[key]; }
                 modify = true;
