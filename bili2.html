@@ -57,6 +57,9 @@
         }, 1000)
     </script>
     <script>
+        function fIsMobile() {
+            return /Android|iPhone|iPad|iPod|BlackBerry|webOS|Windows Phone|SymbianOS|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
         async function work() {
             let hosts = ['http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
             let i = 0, base, res;
@@ -106,7 +109,7 @@
                 pip: true,
                 screenshot: true,
                 fullscreen: true,
-                fullscreenWeb: true,
+                fullscreenWeb: !fIsMobile(),
                 playsInline: true,
                 autoOrientation: true,
                 airplay: true,
