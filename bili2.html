@@ -58,9 +58,6 @@
         }, 1000)
     </script>
     <script>
-        function fIsMobile() {
-            return /Android|iPhone|iPad|iPod|BlackBerry|webOS|Windows Phone|SymbianOS|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
         async function work() {
             let hosts = ['http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
             let i = 0, base, res;
@@ -97,6 +94,8 @@
             window.qualities = qualities;
             console.log(qualities, selected);
 
+            Artplayer.MOBILE_DBCLICK_PLAY = false;
+            Artplayer.CONTROL_HIDE_TIME = 1000;
             const art = new Artplayer({
                 container: '.artplayer-app',
                 url: window.url,
@@ -115,7 +114,7 @@
                 pip: true,
                 screenshot: true,
                 fullscreen: true,
-                fullscreenWeb: !fIsMobile(),
+                fullscreenWeb: !Artplayer.utils.isMobile,
                 playsInline: true,
                 autoOrientation: true,
                 airplay: true,
@@ -124,18 +123,57 @@
                     loading: '<img src="./assets/img/ploading.gif">',
                     state: '<img width="150" heigth="150" src="./assets/img/state.svg">',
                     indicator: '<img width="16" heigth="16" src="./assets/img/indicator.svg">',
-                },
-                plugins: [
-                    artplayerPluginDanmuku({
-                        // 弹幕数组
-                        danmuku: () => fetch(base + '/danmu?bid=' + bid).then(res => res.json()),
-                    }),
-                ],
+                }
             });
             window.art = art;
             art.fullscreenWeb = true;
+            art.on('fullscreen', (state) => {
+                if (!state) {
+                    art.fullscreenWeb = true;
+                }
+            });
+            if (Artplayer.utils.isMobile) {
+                art.on('click', (event) => {
+                    if (!art.playing) art.play();
+                    else art.pause();
+                });
+            }
+
+            let danmu_config = localStorage.getItem('danmu_config');
+            danmu_config = danmu_config ? JSON.parse(danmu_config) : {};
+            art.plugins.add(artplayerPluginDanmuku({
+                fontSize: 15.2,
+                // 弹幕数组
+                danmuku: () => fetch(base + '/danmu?bid=' + bid).then(res => res.json()), ...danmu_config
+            }))
+            if (localStorage.getItem('danmu_on') == '0') {
+                art.plugins.artplayerPluginDanmuku.hide();
+            }
+            let modify = false;
+            art.on('artplayerPluginDanmuku:config', (option) => {
+                if (modify) return;
+                option.fontSize = option.fontSize - 10;
+                console.info('配置变化', option);
+                let needs = ['speed', 'opacity', 'fontSize', 'color', 'mode', 'margin', 'antiOverlap', 'synchronousPlayback', 'heatmap']
+                let config = {};
+                for (let key of needs) { config[key] = option[key]; }
+                modify = true;
+                art.plugins.artplayerPluginDanmuku.config(config);
+                modify = false;
+                localStorage.setItem('danmu_config', JSON.stringify(config));
+            });
+            art.on('artplayerPluginDanmuku:hide', () => {
+                console.info('弹幕隐藏');
+                localStorage.setItem('danmu_on', 0);
+            });
+            art.on('artplayerPluginDanmuku:show', () => {
+                console.info('弹幕显示');
+                localStorage.setItem('danmu_on', 1);
+            });
+
         }
         work();
+
 
     </script>
 </body>
