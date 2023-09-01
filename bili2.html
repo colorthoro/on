@@ -57,13 +57,25 @@
         }, 1000)
     </script>
     <script>
-        let base = 'http://1j28757481.eicp.vip:5678';
-        // base = 'http://localhost:5678';
-        let qualities = base + '/qualities?bid=' + bid;
-        let url = base + '/bili?bid=' + bid;
-        window.url = url;
+        async function work() {
+            let hosts = ['http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
+            let i = 0, base, res;
+            do {
+                base = hosts[i++ % hosts.length];
+                try {
+                    res = await fetch(base);
+                } catch (e) {
+                    console.error(e);
+                }
+                await new Promise(ok => setTimeout(ok, 500));
+            } while (!res);
+            // base = 'http://localhost:5678';
+            console.log(base);
+            let qualities = base + '/qualities?bid=' + bid;
+            let url = base + '/bili?bid=' + bid;
+            window.url = url;
+            let marks = await fetch(qualities).then(res => res.json());
 
-        fetch(qualities).then(res => res.json()).then(marks => {
             window.marks = marks;
             console.log(marks);
             let quality = Array.prototype.map.call(marks, (mark, i, self) => {
@@ -113,7 +125,9 @@
             });
             window.art = art;
             art.fullscreenWeb = true;
-        })
+        }
+        work();
+
     </script>
 </body>
 
