@@ -75,28 +75,33 @@
             } while (!res);
             // base = 'http://localhost:5678';
             console.log(base);
-            let qualities = base + '/qualities?bid=' + bid;
             let url = base + '/bili?bid=' + bid;
             window.url = url;
-            let marks = await fetch(qualities).then(res => res.json());
 
+            let qualitiesUrl = base + '/qualities?bid=' + bid;
+            let marks = await fetch(qualitiesUrl).then(res => res.json());
             window.marks = marks;
             console.log(marks);
-            let quality = Array.prototype.map.call(marks, (mark, i, self) => {
-                let default_ = false, url = window.url + '&vq=' + encodeURIComponent(mark);
-                if (i == Math.floor(self.length / 2)) {
-                    default_ = true;
-                    window.url = url;
-                }
-                return { default: default_, html: mark, url }
+
+            let selected = null;
+            let qualities = Array.prototype.map.call(marks, (mark, i, self) => {
+                let url = window.url + '&vq=' + encodeURIComponent(mark);
+                let obj = { html: mark, url }
+                if (mark == '1080P') selected = obj;
+                return obj;
             });
-            window.quality = quality;
-            console.log(quality);
+            if (!selected) selected = qualities[Math.floor(qualities.length >> 1)];
+            selected.default = true;
+            window.url = selected.url;
+            window.selected = selected;
+            window.qualities = qualities;
+            console.log(qualities, selected);
+
             const art = new Artplayer({
                 container: '.artplayer-app',
                 url: window.url,
                 poster: base + '/pic?bid=' + bid,
-                quality,
+                quality: qualities,
                 autoplay: true,
                 autoPlayback: true,
                 loop: true,
