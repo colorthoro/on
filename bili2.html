@@ -83,7 +83,7 @@
             window.marks = marks;
             console.log(marks);
             let quality = Array.prototype.map.call(marks, (mark, i, self) => {
-                let default_ = false, url = window.url + '&vq=' + mark;
+                let default_ = false, url = window.url + '&vq=' + encodeURIComponent(mark);
                 if (i == Math.floor(self.length / 2)) {
                     default_ = true;
                     window.url = url;
