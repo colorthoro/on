@@ -23,6 +23,7 @@
             <a href="waterMark.html">水印制作</a>
             <a href="bili.html">bilibili</a>
         </div>
+        <div class="localstorage" style="white-space: pre-wrap;"></div>
     </div>
     <script>
         // let getDate = () => new Date();
@@ -35,6 +36,13 @@
             document.getElementById('time').innerText = x.toLocaleString();
         }, 1000);
 
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            let value = JSON.stringify(JSON.parse(localStorage.getItem(key)), null, 4);
+            document.getElementsByClassName('localstorage')[0].innerHTML += (
+                `${key} : ${value}\n<a href="javascript:localStorage.removeItem(${key})">删除</a>\n\n`
+            )
+        }
 
         class apiCaller {
             constructor() {
