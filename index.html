@@ -40,7 +40,7 @@
             let key = localStorage.key(i);
             let value = JSON.stringify(JSON.parse(localStorage.getItem(key)), null, 4);
             document.getElementsByClassName('localstorage')[0].innerHTML += (
-                `${key} : ${value}\n<a href="javascript:localStorage.removeItem(${key})">删除</a>\n\n`
+                `${key} : ${value}\n<a href="javascript:localStorage.removeItem('${key}')">删除</a>\n\n`
             )
         }
 
