@@ -8,6 +8,7 @@
     <title>bilibili Magic</title>
     <script src="./part3/artplayer.js"></script>
     <script src="./part3/artplayer-plugin-danmuku.js"></script>
+    <script src="./part3/patch.js"></script>
     <style>
         body {
             margin: 0;
@@ -146,20 +147,15 @@
                 // 弹幕数组
                 danmuku: () => fetch(base + '/danmu?bid=' + bid).then(res => res.json()), ...danmu_config
             }));
+            patch_danmu_plugins(art);
             if (localStorage.getItem('danmu_on') == '0') {
                 art.plugins.artplayerPluginDanmuku.hide();
             }
-            let modify = false;
             art.on('artplayerPluginDanmuku:config', (option) => {
-                if (modify) return;
-                option.fontSize = option.fontSize - 10;
                 console.info('配置变化', option);
                 let needs = ['speed', 'opacity', 'fontSize', 'color', 'mode', 'margin', 'antiOverlap', 'synchronousPlayback']
                 let config = {};
                 for (let key of needs) { config[key] = option[key]; }
-                modify = true;
-                art.plugins.artplayerPluginDanmuku.config(config);
-                modify = false;
                 localStorage.setItem('danmu_config', JSON.stringify(config));
             });
             art.on('artplayerPluginDanmuku:hide', () => {
