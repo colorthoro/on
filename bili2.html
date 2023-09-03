@@ -142,7 +142,10 @@
             }
 
             let danmu_config = localStorage.getItem('danmu_config');
-            danmu_config = danmu_config ? JSON.parse(danmu_config) : {};
+            danmu_config = danmu_config ? JSON.parse(danmu_config) : {
+                fontSize: 17,
+                margin: [10, '75%'],
+            };
             art.plugins.add(artplayerPluginDanmuku({
                 heatmap: true,
                 // 弹幕数组
