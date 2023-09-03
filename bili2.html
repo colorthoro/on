@@ -95,14 +95,15 @@
             window.qualities = qualities;
             console.log(qualities, selected);
 
+            let picUrl = base + '/pic?bid=' + bid;
+
             Artplayer.MOBILE_DBCLICK_PLAY = false;
             Artplayer.CONTROL_HIDE_TIME = 1000;
             const art = new Artplayer({
                 container: '.artplayer-app',
                 url: window.url,
-                poster: base + '/pic?bid=' + bid,
+                poster: picUrl,
                 quality: qualities,
-                autoplay: true,
                 autoPlayback: true,
                 loop: true,
                 flip: true,
@@ -166,11 +167,51 @@
                 console.info('弹幕显示');
                 localStorage.setItem('danmu_on', 1);
             });
-
+            let linkLayer = {
+                name: 'link',
+                html: `<img id="linklayerlink" width="200" style="border-radius: 10px" src="${picUrl}">`,
+                tooltip: `源网页：${bid}`,
+                click: function () {
+                    location.href = 'https://www.bilibili.com/video/' + bid;
+                },
+                style: {
+                    position: 'absolute',
+                    top: '30px',
+                    right: '20px',
+                },
+            }
+            art.layers.add(linkLayer);
+            art.on('pause', () => {
+                document.querySelector('#linklayerlink').style.display = 'block';
+            })
+            art.on('play', () => {
+                document.querySelector('#linklayerlink').style.display = 'none';
+            })
+            art.contextmenu.add({ name: 'download' });
+            art.on('contextmenu', () => {
+                art.contextmenu.update({
+                    name: 'download',
+                    index: 1,
+                    html: '下载：' + decodeURIComponent(art.url.split('bili?')[1]),
+                    click: async function () {
+                        let response = await fetch(art.url + '&type=download'); // 内容转变成blob地址
+                        art.contextmenu.show = false;
+                        art.notice.show = '正在后台下载...';
+                        let blob = await response.blob();  // 创建隐藏的可下载链接
+                        let objectUrl = window.URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.href = objectUrl;
+                        a.download = name;
+                        a.click()
+                        a.remove();
+                        art.notice.show = '下载成功';
+                    },
+                });
+            })
+            art.play();
+            return { art, Artplayer };
         }
-        work();
-
-
+        window.work = work();
     </script>
 </body>
 
