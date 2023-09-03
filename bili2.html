@@ -149,7 +149,14 @@
             art.plugins.add(artplayerPluginDanmuku({
                 heatmap: true,
                 // 弹幕数组
-                danmuku: () => fetch(base + '/danmu?bid=' + bid).then(res => res.json()), ...danmu_config
+                danmuku: async () => {
+                    let ok, p = new Promise(i => ok = i);
+                    art.on('ready', () => ok(art.duration))
+                    let duration = await p;
+                    res = fetch(base + '/danmu?bid=' + bid + '&cnt=' + Math.ceil(duration / 360)).then(res => res.json());
+                    return res;
+                },
+                ...danmu_config
             }));
             patch_danmu_plugins(art);
             if (localStorage.getItem('danmu_on') == '0') {
