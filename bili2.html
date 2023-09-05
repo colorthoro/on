@@ -228,30 +228,8 @@
         work.then(() => {
             if (!Artplayer.utils.isMobile) return;
             let $video = document.querySelector('video.art-video');
-            let touchstart = null;
-            $video.addEventListener('touchstart', function (event) {
-                event.preventDefault(); // 防止默认振动，但会影响click触发，artplayer内置注册在click上的播放、暂停无法响应
-                touchstart = event;
-            });
-            // 修复click无法触发的问题
-            $video.addEventListener('touchmove', function (event) { touchstart = null; })
-            $video.addEventListener('touchend', function (event) {
-                if (touchstart != null) {
-                    let gap = event.timeStamp - touchstart.timeStamp;
-                    if (gap < Artplayer.FAST_FORWARD_TIME) {
-                        let click = new Event('click', { bubbles: true, cancelable: true });
-                        $video.dispatchEvent(click);
-                    }
-                    touchstart = null;
-                }
-            });
-            // 触发自定义振动
             $video.addEventListener('ratechange', (e) => {
-                console.log('ratechange', art.playbackRate);
                 let vibration = [50];
-                for (let i = 1; i < art.playbackRate; i++) {
-                    vibration.push(1, 50);
-                }
                 window.navigator.vibrate(vibration);
             })
         })
