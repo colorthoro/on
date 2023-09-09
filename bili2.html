@@ -63,7 +63,7 @@
             let hosts = ['http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
             let i = 0, base, res;
             do {
-                base = hosts[i++ % hosts.length];
+                base = hosts[i++ % hosts.length] + '/test';
                 try {
                     res = await fetch(base);
                 } catch (e) {

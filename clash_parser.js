@@ -33,7 +33,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     notify('预处理', `成功添加 ☝openai 规则`);
     for(let select of selected){
         if(select.name == '☝openai'){
-            select.now = '安徽联通转日本NTT6[M][倍率:0.8]'
+            select.now = '广东移动转日本NTT2[倍率:0.8]'
         }else if(select.name.includes('国外')){
             select.now = '深港专线转香港BGP[M][倍率:2.5]'
         }
