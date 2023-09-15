@@ -28,7 +28,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         type:'select',
         proxies
     });
-    [].filter((v)=>!v.includes(',google,'))
+    obj.rules = obj.rules.filter((v)=>!v.includes(',google,'))
     obj.rules.unshift('DOMAIN-KEYWORD,openai.com,☝openai');
     obj.rules.unshift('DOMAIN-KEYWORD,google,☝openai');
     notify('预处理', `成功添加 ☝openai 规则`);
