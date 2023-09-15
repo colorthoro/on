@@ -8,12 +8,17 @@ parsers:
 parsers:
   - reg: .*www.ccsub.online/.+$   # 第一个执行的parser
     file: '{path_to_this_file}'
+
+parsers:
+  - reg: .*www.ccsub.online.+$   # 第一个执行的parser
+    code: |
+
 */
 
 
 module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url, interval, selected }) => {
     console.log('js模块开始预处理')
-    const obj = yaml.parse(raw)
+    const obj = yaml.parse(raw);
     console.log(obj, name, url, interval, selected);
     let proxies = obj['proxies'].map(v => v.name);
     let groups = obj['proxy-groups'];
@@ -42,7 +47,6 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
             url: 'http://www.gstatic.com/generate_204',
             interval: 864000,  // 10天刷新一次
             tolerance: 100,  // 100ms的区别不切换
-            // lazy: true,  // 未使用则不测试
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
@@ -50,30 +54,29 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     groups.forEach(v => {
         if (v.name.includes(locAutoSuffix)) return;
-        v.proxies.splice(1, 0, ...groupsLocationMap.keys())
+        v.proxies.splice(v.name == '🔰国外流量' ? 0 : 1, 0, ...groupsLocationMap.keys())
     })
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
     obj.rules.unshift('DOMAIN-KEYWORD,openai.com,☝openai');
     obj.rules.unshift('DOMAIN-KEYWORD,google,☝openai');
 
-
-    if (selected) for (let select of selected) {
-        if (select.name == '☝openai') {
-            select.now = '广东移动转日本NTT3[倍率:0.8]';
-        } else if (select.name.includes('国外流量')) {
-            select.now = '香港' + locAutoSuffix;
+    let defined = new Map([
+        ['☝openai', '广东移动转日本NTT3[倍率:0.8]'],
+        ['🔰国外流量', '香港' + locAutoSuffix]
+    ])
+    if (selected) {
+        for (let select of selected) {
+            if (defined[select.name]) {
+                select.now = defined[select.name];
+                delete defined[select.name];
+            }
+            console.log(select.name, select.now)
         }
-        console.log(select.name, select.now)
+        defined.forEach((now, name) => {
+            selected.push({ name, now });
+        });
     }
     console.log('预处理成功')
     return yaml.stringify(obj)
 }
-
-
-/**
-parsers:
-  - reg: .*www.ccsub.online.+$   # 第一个执行的parser
-    code: |
-
- */
