@@ -43,7 +43,6 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
             timeout: k.startsWith('香港') ? 1 : 5,  // 香港区节点多，超时设为1
             interval: 864000,  // 10天刷新一次
             tolerance: 100,  // 100ms的区别不切换
-            'evaluate-before-use': true,  // 等待测试完毕再选择，而非自动选择第一个
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
