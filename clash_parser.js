@@ -46,6 +46,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     })
 
     groups.forEach(v => {
+        if (v.name.includes('-自动选择时延最低')) return;
         v.proxies.push(...groupsLocationMap.keys())
     })
 
