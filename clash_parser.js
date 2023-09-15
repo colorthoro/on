@@ -21,7 +21,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     groups.push({
         name: '☝openai',
         type: 'select',
-        proxies
+        proxies: proxies.map(v => v.name)
     });
 
     let proxiesLocationMap = new Map();
