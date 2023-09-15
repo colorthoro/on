@@ -21,7 +21,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     groups.push({
         name: '☝openai',
         type: 'select',
-        proxies
+        proxies: ['🔰国外流量', ...proxies]
     });
 
     let proxiesLocationMap = new Map();
@@ -48,7 +48,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     groups.forEach(v => {
         if (v.name.includes(locAutoSuffix)) return;
-        v.proxies.push(...groupsLocationMap.keys())
+        v.proxies.splice(1, 0, ...groupsLocationMap.keys())
     })
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
