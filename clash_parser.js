@@ -37,7 +37,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         let obj = {
             name: k + '-自动选择时延最低',
             type: 'url-test',
-            proxies: v,
+            proxies: v.name,
             url: 'http://www.gstatic.com/generate_204',
             interval: 300,
         };
