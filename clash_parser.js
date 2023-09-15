@@ -46,10 +46,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     })
 
     groups.forEach(v => {
-        if (v.name.includes('国外')) {
-            let defaultLoc = '香港';
-            if (groupsLocationMap.get(defaultLoc)) v.proxies = [defaultLoc + '-自动选择时延最低'];
-        }
+        v.proxies.push(...groupsLocationMap.keys())
     })
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
@@ -59,7 +56,9 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     if (selected) for (let select of selected) {
         if (select.name == '☝openai') {
-            select.now = '广东移动转日本NTT2[倍率:0.8]'
+            select.now = '广东移动转日本NTT2[倍率:0.8]';
+        } else if (select.name.includes('国外流量')) {
+            select.now = '香港-自动选择时延最低';
         }
         console.log(select.name, select.now)
     }
