@@ -29,7 +29,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         let match = v.name.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;
         let loc = match[1];
-        if (!proxiesLocationMap.get(loc)) proxiesLocationMap.set(loc, []);
+        if (!proxiesLocationMap.get(loc)) proxiesLocationMap.set(loc, [v]);
         else proxiesLocationMap.get(loc).push(v);
     });
     let groupsLocationMap = new Map();
