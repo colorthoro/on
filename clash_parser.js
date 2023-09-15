@@ -62,7 +62,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     obj.rules.unshift('DOMAIN-KEYWORD,google,☝openai');
 
     let defined = new Map([
-        ['☝openai', '广东移动转日本NTT3[倍率:0.8]'],
+        ['☝openai', '广东移动转日本NTT2[倍率:0.8]'],
         ['🔰国外流量', '香港' + locAutoSuffix]
     ])
     if (selected) {
