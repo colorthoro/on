@@ -35,7 +35,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     let groupsLocationMap = new Map();
     proxiesLocationMap.forEach((v, k) => {
         let obj = {
-            name: k + '最优',
+            name: k + '-自动选择时延最低',
             type: 'url-test',
             proxies: v,
             url: 'http://www.gstatic.com/generate_204',
@@ -47,8 +47,8 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     groups.forEach(v => {
         if (v.name.includes('国外')) {
-            let HK = groupsLocationMap.get('香港');
-            if (HK) v.proxies = [HK];
+            let defaultLoc = '香港';
+            if (groupsLocationMap.get(defaultLoc)) v.proxies = [defaultLoc + '-自动选择时延最低'];
         }
     })
 
