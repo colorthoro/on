@@ -15,18 +15,18 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     console.log('js模块开始预处理')
     const obj = yaml.parse(raw)
     console.log(obj, name, url, interval, selected);
-    let proxies = obj['proxies'];
+    let proxies = obj['proxies'].map(v => v.name);
     let groups = obj['proxy-groups'];
 
     groups.push({
         name: '☝openai',
         type: 'select',
-        proxies: proxies.map(v => v.name)
+        proxies
     });
 
     let proxiesLocationMap = new Map();
     proxies.forEach(v => {
-        let match = v.name.match(/转([^a-zA-Z\[\]]+)/);
+        let match = v.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;
         let loc = match[1];
         if (!proxiesLocationMap.get(loc)) proxiesLocationMap.set(loc, [v]);
@@ -37,7 +37,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         let obj = {
             name: k + '-自动选择时延最低',
             type: 'url-test',
-            proxies: v.name,
+            proxies: v,
             url: 'http://www.gstatic.com/generate_204',
             interval: 300,
         };
