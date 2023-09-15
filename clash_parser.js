@@ -12,9 +12,9 @@ parsers:
 
 
 module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url, interval, selected }) => {
-    console.log(name, url, interval, selected);
     console.log('js模块开始预处理')
     const obj = yaml.parse(raw)
+    console.log(obj, name, url, interval, selected);
     let proxies = null;
     let groups = obj['proxy-groups'];
     for(let group of groups){
