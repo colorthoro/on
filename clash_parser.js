@@ -25,17 +25,18 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     });
 
     let proxiesLocationMap = new Map();
+    let locAutoSuffix = '-自动选择时延最低';
     proxies.forEach(v => {
         let match = v.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;
-        let loc = match[1];
+        let loc = match[1] + locAutoSuffix;
         if (!proxiesLocationMap.get(loc)) proxiesLocationMap.set(loc, [v]);
         else proxiesLocationMap.get(loc).push(v);
     });
     let groupsLocationMap = new Map();
     proxiesLocationMap.forEach((v, k) => {
         let obj = {
-            name: k + '-自动选择时延最低',
+            name: k,
             type: 'url-test',
             proxies: v,
             url: 'http://www.gstatic.com/generate_204',
@@ -46,7 +47,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     })
 
     groups.forEach(v => {
-        if (v.name.includes('-自动选择时延最低')) return;
+        if (v.name.includes(locAutoSuffix)) return;
         v.proxies.push(...groupsLocationMap.keys())
     })
 
@@ -59,7 +60,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         if (select.name == '☝openai') {
             select.now = '广东移动转日本NTT2[倍率:0.8]';
         } else if (select.name.includes('国外流量')) {
-            select.now = '香港-自动选择时延最低';
+            select.now = '香港' + locAutoSuffix;
         }
         console.log(select.name, select.now)
     }
