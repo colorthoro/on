@@ -26,7 +26,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     let proxiesLocationMap = new Map();
     proxies.forEach(v => {
-        let match = v.match(/转([^a-zA-Z\[\]]+)/);
+        let match = v.name.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;
         let loc = match[1];
         if (!proxiesLocationMap.get(loc)) proxiesLocationMap.set(loc, []);
