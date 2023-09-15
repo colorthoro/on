@@ -60,7 +60,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     if (selected) for (let select of selected) {
         if (select.name == '☝openai') {
-            select.now = '广东移动转日本NTT2[倍率:0.8]';
+            select.now = '广东移动转日本NTT3[倍率:0.8]';
         } else if (select.name.includes('国外流量')) {
             select.now = '香港' + locAutoSuffix;
         }
