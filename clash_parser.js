@@ -40,9 +40,9 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
             type: 'url-test',
             proxies: v,
             url: 'http://www.gstatic.com/generate_204',
-            timeout: k.startsWith('香港') ? 1 : 5,  // 香港区节点多，超时设为1
             interval: 864000,  // 10天刷新一次
             tolerance: 100,  // 100ms的区别不切换
+            lazy: true,  // 未使用则不测试
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
