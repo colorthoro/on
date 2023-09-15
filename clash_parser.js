@@ -42,7 +42,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
             url: 'http://www.gstatic.com/generate_204',
             interval: 864000,  // 10天刷新一次
             tolerance: 100,  // 100ms的区别不切换
-            lazy: true,  // 未使用则不测试
+            // lazy: true,  // 未使用则不测试
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
