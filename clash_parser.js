@@ -46,7 +46,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
             proxies: v,
             url: 'http://www.gstatic.com/generate_204',
             interval: 864000,  // 10天刷新一次
-            tolerance: 100,  // 100ms的区别不切换
+            tolerance: 50,  // 100ms的区别不切换
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
