@@ -46,7 +46,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
             proxies: v,
             url: 'http://www.gstatic.com/generate_204',
             interval: 60,
-            tolerance: 50,
+            tolerance: 70,
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
