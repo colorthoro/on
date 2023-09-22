@@ -58,9 +58,10 @@
             document.title = name;
         }, 1000)
     </script>
+    <script src="./dddcg.js"></script>
     <script>
         async function work() {
-            let hosts = ['http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
+            let hosts = [`http://${(await window.dns)?.ccair14}:5678`, 'http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
             let i = 0, base, res;
             do {
                 base = hosts[i++ % hosts.length];
