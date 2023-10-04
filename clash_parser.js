@@ -24,7 +24,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     let groups = obj['proxy-groups'];
 
     groups.push({
-        name: '☝openai',
+        name: 'openai',
         type: 'select',
         proxies: [...proxies]
     });
@@ -58,11 +58,12 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     })
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
-    obj.rules.unshift('DOMAIN-KEYWORD,openai.com,☝openai');
-    obj.rules.unshift('DOMAIN-KEYWORD,google,☝openai');
+    obj.rules.unshift('DOMAIN-KEYWORD,openai.com,openai');
+    obj.rules.unshift('DOMAIN-KEYWORD,google,openai');
 
     let defined = new Map([
-        ['☝openai', '日本' + locAutoSuffix],
+        ['openai', '日本' + locAutoSuffix],
+        ['🚀 节点选择', '香港' + locAutoSuffix]
     ])
     if (selected) {
         for (let select of selected) {
