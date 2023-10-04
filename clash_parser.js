@@ -26,7 +26,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     groups.push({
         name: '☝openai',
         type: 'select',
-        proxies: ['🔰国外流量', ...proxies]
+        proxies: [...proxies]
     });
 
     let proxiesLocationMap = new Map();
@@ -54,7 +54,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     groups.forEach(v => {
         if (v.name.includes(locAutoSuffix)) return;
-        v.proxies.splice(v.name == '🔰国外流量' ? 0 : 1, 0, ...groupsLocationMap.keys())
+        v.proxies.splice(1, 0, ...groupsLocationMap.keys())
     })
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
@@ -63,7 +63,6 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     let defined = new Map([
         ['☝openai', '日本' + locAutoSuffix],
-        ['🔰国外流量', '香港' + locAutoSuffix]
     ])
     if (selected) {
         for (let select of selected) {
