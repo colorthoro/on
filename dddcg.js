@@ -4,7 +4,7 @@
     const GITEE_GIST_ID = 'k9b54vytfj2g3xa7hoi0n78'
     let content;
     let ok, f, p = new Promise((i, j) => (ok = i, f = j));
-    window && (window.dns = p);
+    try { window && (window.dns = p); } catch (e) { window = null; }
     fetch(`https://gitee.com/api/v5/gists/${GITEE_GIST_ID}?access_token=${GITEE_TOKEN}`).then(res => res.json()).then(res => {
         try {
             content = res['files']['dns.json']['content']
