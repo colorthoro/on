@@ -60,6 +60,11 @@
     </script>
     <script src="./dddcg.js"></script>
     <script>
+        function quality2Num(quality) {
+            let num = quality.replace('P', '.').replace('K', '000').replace('+', '5');
+            return parseFloat(num);
+        }
+
         async function work() {
             let hosts = [`http://${(await window.dns)?.ccair14}:5678`, 'http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
             let i = 0, base, res;
@@ -77,16 +82,26 @@
             let url = base + '/bili?bid=' + bid;
             window.url = url;
 
+            let lengthUrl = base + '/length?bid=' + bid;
+            let length = await fetch(lengthUrl).then(res => res.json());
+            console.log(length);
+
             let qualitiesUrl = base + '/qualities?bid=' + bid;
             let marks = await fetch(qualitiesUrl).then(res => res.json());
             window.marks = marks;
             console.log(marks);
 
+            // 不超过3分钟时视频质量选最优，length单位是毫秒
+            let defaultQuality = '1080P';
+            if (length < 120000) defaultQuality = 'best';
             let selected = null;
             let qualities = Array.prototype.map.call(marks, (mark, i, self) => {
                 let url = window.url + '&vq=' + encodeURIComponent(mark);
                 let obj = { html: mark, url }
-                if (mark == '1080P') selected = obj;
+                if (defaultQuality == 'best')
+                    if (selected == null) selected = obj;
+                    else (quality2Num(selected.html) < quality2Num(mark)) && (selected = obj);
+                else if (mark == defaultQuality) selected = obj;
                 return obj;
             });
             if (!selected) selected = qualities[Math.floor(qualities.length >> 1)];
