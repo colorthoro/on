@@ -15,13 +15,13 @@
         }
         async function tohost(name) {
             var jscode = await fetch('./dddcg.js').then(res => res.text());
-            var asyncFunc = new Function(`return (${jscode})`);
+            var asyncFunc = new Function(`return ${jscode}`);
             let dns = await asyncFunc().catch(e => location.replace(homepage));
             if (!dns[name]) location.replace(homepage);
             location.replace(`http://${dns[name]}:5678`);
         }
         function redirect() {
-            if (!issueNumber) throw 'no issueNumber';
+            if (!issueNumber) throw new Error('no issueNumber');
             var ISSUES_LINK = "https://gitee.com/api/v5/repos/colorthoro/on-js/issues/";  // Format: https://api.github.com/repos/{owner}/{repo}/issues/
             var queryUrl = ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27';
             fetch(queryUrl).then(res => res.json()).then(payload => {
