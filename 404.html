@@ -24,7 +24,7 @@
         async function redirect() {
             var ISSUES_LINK = "https://gitee.com/api/v5/repos/colorthoro/on-js/issues/";  // Format: https://api.github.com/repos/{owner}/{repo}/issues/
             var queryUrl = ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27';
-            let paylod = await fetch(queryUrl).then(res => res.json());
+            let payload = await fetch(queryUrl).then(res => res.json());
             var message = payload.message;
             if (message == 'Issue') throw new Error('Issue not found.');
             var title = payload.title;
