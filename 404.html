@@ -8,7 +8,7 @@
         var paths = location.pathname.split("/");  // Format: https://colorthoro.gitee.io/on-js/I8DPN1
         var issueNumber = paths[2]; // ['', 'on-js', 'issueNumber']
         var homepage = location.origin + paths.slice(0, -1).join('/');
-        try { await lead(); } catch (e) { location.replace(homepage); }
+        lead().catch(err => location.replace(homepage));
         async function lead() {
             if (!issueNumber) throw new Error('no issueNumber.');
             else if (issueNumber === 'ccair14') await tohost(issueNumber);
