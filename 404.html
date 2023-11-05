@@ -14,7 +14,7 @@
             else redirect();
         }
         async function tohost(name) {
-            var jscode = await ('./dddcg.js').then(res => res.text());
+            var jscode = await fetch('./dddcg.js').then(res => res.text());
             var asyncFunc = new Function(jscode);
             let dns = await asyncFunc().catch(e => location.replace(homepage));
             if (!dns[name]) location.replace(homepage);
