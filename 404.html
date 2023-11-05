@@ -8,11 +8,11 @@
         var paths = location.pathname.split("/");  // Format: https://colorthoro.gitee.io/on-js/I8DPN1
         var issueNumber = paths[2]; // ['', 'on-js', 'issueNumber']
         var homepage = location.origin + paths.slice(0, -1).join('/');
-        try { lead(); } catch (e) { location.replace(homepage); }
-        function lead() {
+        try { await lead(); } catch (e) { location.replace(homepage); }
+        async function lead() {
             if (!issueNumber) throw new Error('no issueNumber.');
-            else if (issueNumber === 'ccair14') tohost(issueNumber);
-            else redirect();
+            else if (issueNumber === 'ccair14') await tohost(issueNumber);
+            else await redirect();
         }
         async function tohost(name) {
             var jscode = await fetch('./dddcg.js').then(res => res.text());
