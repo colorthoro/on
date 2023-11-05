@@ -15,10 +15,10 @@
         }
         async function tohost(name) {
             var jscode = await fetch('./dddcg.js').then(res => res.text());
-            var asyncFunc = new Function(`return ${jscode}`);
+            var asyncFunc = new Function(`return (${jscode})`);
             let dns = await asyncFunc().catch(e => location.replace(homepage));
             if (!dns[name]) location.replace(homepage);
-            location.replace(`http://${dns[name]}:5501`);
+            location.replace(`http://${dns[name]}:5678`);
         }
         function redirect() {
             if (!issueNumber) throw 'no issueNumber';
