@@ -1,4 +1,3 @@
-// DDNS Downloader Client with Gitee
 (async () => {
     const GITEE_TOKEN = '4afb627b2979b9d5c653246be733ab27'
     const GITEE_GIST_ID = 'k9b54vytfj2g3xa7hoi0n78'
@@ -16,3 +15,4 @@
     }
     return p;
 })();
+// DDNS Downloader Client with Gitee
