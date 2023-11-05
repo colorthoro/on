@@ -8,32 +8,28 @@
         var paths = location.pathname.split("/");  // Format: https://colorthoro.gitee.io/on-js/I8DPN1
         var issueNumber = paths[2]; // ['', 'on-js', 'issueNumber']
         var homepage = location.origin + paths.slice(0, -1).join('/');
-        lead();
+        try { lead(); } catch (e) { location.replace(homepage); }
         function lead() {
-            if (issueNumber === 'ccair14') tohost(issueNumber);
+            if (!issueNumber) throw new Error('no issueNumber.');
+            else if (issueNumber === 'ccair14') tohost(issueNumber);
             else redirect();
         }
         async function tohost(name) {
             var jscode = await fetch('./dddcg.js').then(res => res.text());
             var asyncFunc = new Function(`return ${jscode}`);
-            let dns = await asyncFunc().catch(e => location.replace(homepage));
+            let dns = await asyncFunc();
             if (!dns[name]) location.replace(homepage);
             location.replace(`http://${dns[name]}:5678`);
         }
-        function redirect() {
-            if (!issueNumber) throw new Error('no issueNumber');
+        async function redirect() {
             var ISSUES_LINK = "https://gitee.com/api/v5/repos/colorthoro/on-js/issues/";  // Format: https://api.github.com/repos/{owner}/{repo}/issues/
             var queryUrl = ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27';
-            fetch(queryUrl).then(res => res.json()).then(payload => {
-                var message = payload.message;
-                if (message == 'Issue') throw new Error('Issue not found.');
-                var title = payload.title;
-                var url = encodeURI(title);
-                location.replace(url);
-            }).catch(err => {
-                alert(`issueNumber: ${issueNumber}\nError: ${err.message}`);
-                location.replace(homepage);
-            });
+            let paylod = await fetch(queryUrl).then(res => res.json());
+            var message = payload.message;
+            if (message == 'Issue') throw new Error('Issue not found.');
+            var title = payload.title;
+            var url = encodeURI(title);
+            location.replace(url);
         }
     </script>
 </head>
