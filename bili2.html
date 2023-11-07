@@ -74,7 +74,7 @@
             let resolution = w * h;
             console.log(resolution)
             if (resolution >= 8294400) return '4K'; // 3840 * 2160
-            if (resolution >= 2073600) return '1080P+'; // 1920 * 1080
+            if (resolution >= 2073600) return '1080P60'; // 1920 * 1080
             if (resolution >= 921600) return '720P'; // 1280 * 720
             return '480P';
         }
@@ -106,15 +106,15 @@
             console.log(marks);
 
             // 不超过3分钟时视频质量选最优，length单位是毫秒
-            let defaultQuality = '1080P+';
+            let defaultQuality = '1080P60';
             if (length < 120000) defaultQuality = '4K';
             // 升级，获取屏幕分辨率，决定默认画质，如果函数失败则仍然根据时间来获取
             let scrResolutionRate = getScrResolutionRate();
             defaultQuality = scrRR2quality(scrResolutionRate);
             console.log(defaultQuality)
             // 如果视频时长大于半小时，则回退到1080P
-            if (length > 1800000 && quality2Num(defaultQuality) > quality2Num('1080P+'))
-                defaultQuality = '1080P';
+            if (length > 1800000 && quality2Num(defaultQuality) > quality2Num('1080P60'))
+                defaultQuality = '1080P60';
             let defaultNum = quality2Num(defaultQuality);
             let selected = null;
             let qualities = Array.prototype.map.call(marks, (mark, i, self) => {
