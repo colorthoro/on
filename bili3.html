@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>bilibili Magic</title>
+    <script src="./part3/artplayer.js"></script>
+    <script src="./part3/artplayer-plugin-danmuku.js"></script>
+    <script src="./part3/patch.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+
+        .artplayer-app {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="artplayer-app"></div>
+    <script>
+        function getQueryStringArgs() {
+            //取得查询字符串并去掉开头的问号
+            var qs = (location.search.length > 0 ? location.search.substring(1) : ""),
+                //保存数据的对象
+                args = {},
+                //取得每一项
+                items = qs.length ? qs.split("&") : [],
+                item = null,
+                name = null,
+                value = null,
+                //在 for 循环中使用
+                i = 0,
+                len = items.length;
+            //逐个将每一项添加到 args 对象中
+            for (i = 0; i < len; i++) {
+                item = items[i].split("=");
+                name = decodeURIComponent(item[0]);
+                value = decodeURIComponent(item[1]);
+                if (name.length) {
+                    args[name] = value;
+                }
+            }
+            return args;
+        }
+        var args = getQueryStringArgs();
+        console.log(args);
+        var bid = args['id'] || 'BV1MU4y1h76r';
+        var name = args['name'] || '【4K超清】王菲Faye《矜持》2002日本全面体演唱会现场【国语】';
+        setTimeout(() => {
+            document.title = name;
+        }, 1000)
+    </script>
+    <script>
+        async function get_from_gitee_gist() {
+            const GITEE_TOKEN = '4afb627b2979b9d5c653246be733ab27'
+            const GITEE_GIST_ID = 'n71d3pamxwesqk6gohb4250'
+            let content;
+            let res = await fetch(`https://gitee.com/api/v5/gists/${GITEE_GIST_ID}?access_token=${GITEE_TOKEN}`).then(res => res.json());
+            content = res['files']['qcloud_vod_urls.json']['content']
+            content = JSON.parse(content);
+            return content;
+        }
+        async function work() {
+            let qcv_url_meta = await get_from_gitee_gist();
+            console.log(qcv_url_meta);
+            window.url = qcv_url_meta[bid]['qcv_media_url'];
+            let picUrl = '';
+            let danmuUrl = '';
+
+            Artplayer.MOBILE_DBCLICK_PLAY = false;
+            Artplayer.CONTROL_HIDE_TIME = 1000;
+            Artplayer.FAST_FORWARD_TIME = 500;
+            const art = new Artplayer({
+                container: '.artplayer-app',
+                url: window.url,
+                poster: picUrl,
+                autoPlayback: true,
+                loop: true,
+                flip: true,
+                playbackRate: true,
+                fastForward: true,
+                lock: true,
+                aspectRatio: true,
+                setting: true,
+                hotkey: true,
+                pip: true,
+                screenshot: true,
+                fullscreen: true,
+                fullscreenWeb: !Artplayer.utils.isMobile,
+                playsInline: true,
+                autoOrientation: true,
+                airplay: true,
+                theme: '#00a1d6',
+                icons: {
+                    loading: '<img src="./assets/img/ploading.gif">',
+                    state: '<img width="150" heigth="150" src="./assets/img/state.svg">',
+                    indicator: '<img width="16" heigth="16" src="./assets/img/indicator.svg">',
+                }
+            });
+            window.art = art;
+            art.fullscreenWeb = true;
+            art.on('fullscreen', (state) => {
+                if (!state) {
+                    art.fullscreenWeb = true;
+                }
+            });
+            if (Artplayer.utils.isMobile) {
+                art.on('click', (event) => {
+                    if (!art.playing) art.play();
+                    else art.pause();
+                });
+            }
+
+            let danmu_config = localStorage.getItem('danmu_config');
+            danmu_config = danmu_config ? JSON.parse(danmu_config) : {
+                fontSize: 17,
+                margin: [10, '75%'],
+            };
+            art.plugins.add(artplayerPluginDanmuku({
+                heatmap: true,
+                // 弹幕数组
+                danmuku: async () => {
+                    res = fetch(danmuUrl).then(res => res.json());
+                    return res;
+                },
+                ...danmu_config
+            }));
+            patch_danmu_plugins(art);
+            if (localStorage.getItem('danmu_on') == '0') {
+                art.plugins.artplayerPluginDanmuku.hide();
+            }
+            art.on('artplayerPluginDanmuku:config', (option) => {
+                console.info('配置变化', option);
+                let needs = ['speed', 'opacity', 'fontSize', 'color', 'mode', 'margin', 'antiOverlap', 'synchronousPlayback']
+                let config = {};
+                for (let key of needs) { config[key] = option[key]; }
+                localStorage.setItem('danmu_config', JSON.stringify(config));
+            });
+            art.on('artplayerPluginDanmuku:hide', () => {
+                console.info('弹幕隐藏');
+                localStorage.setItem('danmu_on', 0);
+            });
+            art.on('artplayerPluginDanmuku:show', () => {
+                console.info('弹幕显示');
+                localStorage.setItem('danmu_on', 1);
+            });
+            let linkLayer = {
+                name: 'link',
+                html: `<img id="linklayerlink" width="200" style="border-radius: 10px" src="${picUrl}">`,
+                tooltip: `源网页：${bid}`,
+                click: function () {
+                    location.href = 'https://www.bilibili.com/video/' + bid;
+                },
+                style: {
+                    position: 'absolute',
+                    top: '30px',
+                    right: '20px',
+                },
+            }
+            art.layers.add(linkLayer);
+            art.on('pause', () => {
+                document.querySelector('#linklayerlink').style.display = 'block';
+            })
+            art.on('play', () => {
+                document.querySelector('#linklayerlink').style.display = 'none';
+            })
+            art.contextmenu.add({ name: 'download' });
+            art.on('contextmenu', () => {
+                art.contextmenu.update({
+                    name: 'download',
+                    index: 1,
+                    html: '下载：' + decodeURIComponent(art.url.split('bili?')[1]),
+                    click: async function () {
+                        let response = await fetch(art.url + '&type=download'); // 内容转变成blob地址
+                        art.contextmenu.show = false;
+                        art.notice.show = '正在后台下载...';
+                        let blob = await response.blob();  // 创建隐藏的可下载链接
+                        let objectUrl = window.URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.href = objectUrl;
+                        a.download = name;
+                        a.click()
+                        a.remove();
+                        art.notice.show = '下载成功';
+                    },
+                });
+            })
+            art.play();
+            return { art, Artplayer };
+        }
+        window.work = work();
+    </script>
+    <script>
+        work.then(() => {
+            if (!Artplayer.utils.isMobile) return;
+            let $video = document.querySelector('video.art-video');
+            $video.addEventListener('ratechange', (e) => {
+                let vibration = [50];
+                window.navigator.vibrate(vibration);
+            })
+        })
+    </script>
+</body>
+
+</html>
