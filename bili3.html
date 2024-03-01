@@ -59,12 +59,17 @@
         }, 1000)
     </script>
     <script>
+        const GITEE_TOKEN = '4afb627b2979b9d5c653246be733ab27'
         async function get_from_gitee_gist() {
-            const GITEE_TOKEN = '4afb627b2979b9d5c653246be733ab27'
             const GITEE_GIST_ID = 'n71d3pamxwesqk6gohb4250'
-            let content;
             let res = await fetch(`https://gitee.com/api/v5/gists/${GITEE_GIST_ID}?access_token=${GITEE_TOKEN}`).then(res => res.json());
-            content = res['files']['qcloud_vod_urls.json']['content']
+            let content = res['files']['qcloud_vod_urls.json']['content']
+            content = JSON.parse(content);
+            return content;
+        }
+        async function get_danmu(danmu_gist_id) {
+            let res = await fetch(`https://gitee.com/api/v5/gists/${danmu_gist_id}?access_token=${GITEE_TOKEN}`).then(res => res.json());
+            let content = res['files'][`${bid}_danmu.json`]['content']
             content = JSON.parse(content);
             return content;
         }
@@ -72,8 +77,7 @@
             let qcv_url_meta = await get_from_gitee_gist();
             console.log(qcv_url_meta);
             window.url = qcv_url_meta[bid]['qcv_media_url'];
-            let picUrl = '';
-            let danmuUrl = '';
+            let picUrl = './assets/img/bili_index.png';
 
             Artplayer.MOBILE_DBCLICK_PLAY = false;
             Artplayer.CONTROL_HIDE_TIME = 1000;
@@ -128,8 +132,9 @@
                 heatmap: true,
                 // 弹幕数组
                 danmuku: async () => {
-                    res = fetch(danmuUrl).then(res => res.json());
-                    return res;
+                    let danmu_gist_id = qcv_url_meta[bid]['danmu_gist_id'];
+                    let danmu = await get_danmu(danmu_gist_id);
+                    return danmu;
                 },
                 ...danmu_config
             }));
