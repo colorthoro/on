@@ -77,7 +77,9 @@
             let qcv_url_meta = await get_from_gitee_gist();
             console.log(qcv_url_meta);
             window.url = qcv_url_meta[bid]['qcv_media_url'];
-            let picUrl = './assets/img/bili_index.png';
+            if (qcv_url_meta[bid]['qcv_cover_url']) {
+                window.picUrl = qcv_url_meta[bid]['qcv_cover_url'];
+            } else window.picUrl = './assets/img/bili_index.png';
 
             Artplayer.MOBILE_DBCLICK_PLAY = false;
             Artplayer.CONTROL_HIDE_TIME = 1000;
@@ -85,7 +87,7 @@
             const art = new Artplayer({
                 container: '.artplayer-app',
                 url: window.url,
-                poster: picUrl,
+                poster: window.picUrl,
                 autoPlayback: true,
                 loop: true,
                 flip: true,
@@ -159,7 +161,7 @@
             });
             let linkLayer = {
                 name: 'link',
-                html: `<img id="linklayerlink" width="200" style="border-radius: 10px" src="${picUrl}">`,
+                html: `<img id="linklayerlink" width="200" style="border-radius: 10px" src="${window.picUrl}">`,
                 tooltip: `源网页：${bid}`,
                 click: function () {
                     location.href = 'https://www.bilibili.com/video/' + bid;
