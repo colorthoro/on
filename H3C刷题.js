@@ -32,7 +32,8 @@ myFrame(location.href, async (frame) => {
         for (let k in rightDataMap) {
             let v = rightDataMap[k];
             let inputs = doc.getElementsByName(k.split('_')[1]);
-            console.log(k, v, inputs);
+            let title = inputs[0].parentNode.parentNode.parentNode.parentNode.firstElementChild.textContent;
+            console.log(k, title, inputs, v);
             await new Promise(ok => setTimeout(ok, 500));
             inputs.forEach(input => {
                 let abc = $(input).parent().next().text();
