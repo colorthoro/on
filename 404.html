@@ -5,57 +5,32 @@
     <meta charset="utf-8" />
     <title>Redirecting... Magic</title>
     <script>
-        /**
-         * Configuration goes here
-         */
-        // Format: https://api.github.com/repos/{owner}/{repo}/issues/
-        var GITHUB_ISSUES_LINK =
-            "https://gitee.com/api/v5/repos/colorthoro/on-js/issues/";
-        var PATH_SEGMENTS_TO_SKIP = 1;
-
-        /**
-         * DO NOT TOUCH ANYTHING BELOW THIS COMMENT UNLESS YOU KNOW WHAT YOU ARE DOING
-         */
-
-        function redirect() {
-            var location = window.location;
-            var issueNumber = location.pathname.split("/")[
-                PATH_SEGMENTS_TO_SKIP + 1
-            ];
-            var homepage =
-                location.protocol +
-                "//" +
-                location.hostname +
-                (location.port ? ":" + location.port : "") +
-                "/" +
-                location.pathname.split("/")[PATH_SEGMENTS_TO_SKIP];
-
-            var xhr = new XMLHttpRequest();
-
-            xhr.onload = function () {
-                try {
-                    var payload = JSON.parse(xhr.response);
-                    var message = payload.message;
-                    if (message === 'Issue') {
-                        throw new Error('Issue not found.');
-                    }
-                    var title = payload.title;
-                    var url = encodeURI(title);
-                    location.replace(url);
-                } catch (e) {
-                    location.replace(homepage);
-                }
-            };
-
-            xhr.onerror = function () {
-                location.replace(homepage);
-            };
-            xhr.open("GET",
-                GITHUB_ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27'
-            );
-            xhr.send();
+        var paths = location.pathname.split("/");  // Format: https://colorthoro.gitee.io/on-js/I8DPN1
+        var issueNumber = paths[2]; // ['', 'on-js', 'issueNumber']
+        var homepage = location.origin + paths.slice(0, -1).join('/');
+        lead().catch(err => location.replace(homepage));
+        async function lead() {
+            if (!issueNumber) throw new Error('no issueNumber.');
+            else if (issueNumber === 'ccair14') await tohost(issueNumber);
+            else await redirect();
         }
-        redirect();
+        async function tohost(name) {
+            var jscode = await fetch('./dddcg.js').then(res => res.text());
+            var asyncFunc = new Function(`return ${jscode}`);
+            let dns = await asyncFunc();
+            if (!dns[name]) location.replace(homepage);
+            location.replace(`http://${dns[name]}:5678`);
+        }
+        async function redirect() {
+            var ISSUES_LINK = "https://gitee.com/api/v5/repos/colorthoro/on-js/issues/";  // Format: https://api.github.com/repos/{owner}/{repo}/issues/
+            var queryUrl = ISSUES_LINK + issueNumber + '?access_token=4afb627b2979b9d5c653246be733ab27';
+            let payload = await fetch(queryUrl).then(res => res.json());
+            var message = payload.message;
+            if (message == 'Issue') throw new Error('Issue not found.');
+            var title = payload.title;
+            var url = encodeURI(title);
+            location.replace(url);
+        }
     </script>
 </head>
 

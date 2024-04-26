@@ -58,81 +58,28 @@
             document.title = name;
         }, 1000)
     </script>
-    <script src="./dddcg.js"></script>
     <script>
-        function quality2Num(quality) {
-            let num = quality.replace('P', '.').replace('K', '000').replace('+', '5');
-            return parseFloat(num);
+        const GITEE_TOKEN = '4afb627b2979b9d5c653246be733ab27'
+        async function get_from_gitee_gist() {
+            const GITEE_GIST_ID = 'n71d3pamxwesqk6gohb4250'
+            let res = await fetch(`https://gitee.com/api/v5/gists/${GITEE_GIST_ID}?access_token=${GITEE_TOKEN}`).then(res => res.json());
+            let content = res['files']['qcloud_vod_urls.json']['content']
+            content = JSON.parse(content);
+            return content;
         }
-        function getScrResolutionRate() {
-            let w = window.screen.width * window.devicePixelRatio;
-            let h = window.screen.height * window.devicePixelRatio;
-            return w + 'x' + h;
+        async function get_danmu(danmu_gist_id) {
+            let res = await fetch(`https://gitee.com/api/v5/gists/${danmu_gist_id}?access_token=${GITEE_TOKEN}`).then(res => res.json());
+            let content = res['files'][`${bid}_danmu.json`]['content']
+            content = JSON.parse(content);
+            return content;
         }
-        function scrRR2quality(scrRR) {
-            let [w, h] = scrRR.split('x').map(Number);
-            let resolution = w * h;
-            console.log(resolution)
-            if (resolution >= 8294400) return '4K'; // 3840 * 2160
-            if (resolution >= 2073600) return '1080P60'; // 1920 * 1080
-            if (resolution >= 921600) return '720P'; // 1280 * 720
-            return '480P';
-        }
-
         async function work() {
-            let hosts = [`http://${(await window.dns)?.ccair14}:5678`, 'http://1j28757481.eicp.vip:5678', 'http://j2875u7481.zicp.fun:5678', 'http://2875748up1.wicp.vip:5678'];
-            let i = 0, base, res;
-            do {
-                base = hosts[i++ % hosts.length];
-                try {
-                    res = await fetch(base + '/test');
-                } catch (e) {
-                    console.error(e);
-                }
-                await new Promise(ok => setTimeout(ok, 500));
-            } while (!res);
-            // base = 'http://localhost:5678';
-            console.log(base);
-            let url = base + '/bili?bid=' + bid;
-            window.url = url;
-
-            let lengthUrl = base + '/length?bid=' + bid;
-            let length = await fetch(lengthUrl).then(res => res.json());
-            console.log(length);
-
-            let qualitiesUrl = base + '/qualities?bid=' + bid;
-            let marks = await fetch(qualitiesUrl).then(res => res.json());
-            window.marks = marks;
-            console.log(marks);
-
-            // 不超过3分钟时视频质量选最优，length单位是毫秒
-            let defaultQuality = '1080P60';
-            if (length < 120000) defaultQuality = '4K';
-            // 升级，获取屏幕分辨率，决定默认画质，如果函数失败则仍然根据时间来获取
-            let scrResolutionRate = getScrResolutionRate();
-            defaultQuality = scrRR2quality(scrResolutionRate);
-            console.log(defaultQuality)
-            // 如果视频时长大于半小时，则回退到1080P
-            if (length > 1800000 && quality2Num(defaultQuality) > quality2Num('1080P60'))
-                defaultQuality = '1080P60';
-            let defaultNum = quality2Num(defaultQuality);
-            let selected = null;
-            let qualities = Array.prototype.map.call(marks, (mark, i, self) => {
-                let url = window.url + '&vq=' + encodeURIComponent(mark);
-                let obj = { html: mark, url }
-                let objNum = quality2Num(obj.html);
-                let selNum = selected ? quality2Num(selected.html) : 0;
-                if (objNum > selNum && objNum <= defaultNum) selected = obj;
-                return obj;
-            });
-            if (!selected) selected = qualities[Math.floor(qualities.length >> 1)];
-            selected.default = true;
-            window.url = selected.url;
-            window.selected = selected;
-            window.qualities = qualities;
-            console.log(qualities, selected);
-
-            let picUrl = base + '/pic?bid=' + bid;
+            let qcv_url_meta = await get_from_gitee_gist();
+            console.log(qcv_url_meta);
+            window.url = qcv_url_meta[bid]['qcv_media_url'];
+            if (qcv_url_meta[bid]['qcv_cover_url']) {
+                window.picUrl = qcv_url_meta[bid]['qcv_cover_url'];
+            } else window.picUrl = './assets/img/bili_index.png';
 
             Artplayer.MOBILE_DBCLICK_PLAY = false;
             Artplayer.CONTROL_HIDE_TIME = 1000;
@@ -140,8 +87,7 @@
             const art = new Artplayer({
                 container: '.artplayer-app',
                 url: window.url,
-                poster: picUrl,
-                quality: qualities,
+                poster: window.picUrl,
                 autoPlayback: true,
                 loop: true,
                 flip: true,
@@ -188,11 +134,9 @@
                 heatmap: true,
                 // 弹幕数组
                 danmuku: async () => {
-                    let ok, p = new Promise(i => ok = i);
-                    art.on('ready', () => ok(art.duration))
-                    let duration = await p;
-                    res = fetch(base + '/danmu?bid=' + bid + '&cnt=' + Math.ceil(duration / 360)).then(res => res.json());
-                    return res;
+                    let danmu_gist_id = qcv_url_meta[bid]['danmu_gist_id'];
+                    let danmu = await get_danmu(danmu_gist_id);
+                    return danmu;
                 },
                 ...danmu_config
             }));
@@ -217,7 +161,7 @@
             });
             let linkLayer = {
                 name: 'link',
-                html: `<img id="linklayerlink" width="200" style="border-radius: 10px" src="${picUrl}">`,
+                html: `<img id="linklayerlink" width="200" style="border-radius: 10px" src="${window.picUrl}">`,
                 tooltip: `源网页：${bid}`,
                 click: function () {
                     location.href = 'https://www.bilibili.com/video/' + bid;

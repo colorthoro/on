@@ -59,7 +59,9 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
     obj.rules.unshift('DOMAIN-KEYWORD,openai.com,openai');
+    obj.rules.unshift('DOMAIN-KEYWORD,oaistatic,openai');
     obj.rules.unshift('DOMAIN-KEYWORD,google,openai');
+    obj.rules.unshift('DOMAIN-KEYWORD,chatgpt,openai');
 
     let defined = new Map([
         ['openai', '日本' + locAutoSuffix],
