@@ -2,7 +2,7 @@
 parsers:
   - reg: .*www.ccsub.online.+$
     remote:
-      url: 'https://colorthoro.gitee.io/on-js/clash_parser.js'
+      url: 'https://colorthoro.github.io/onJS/clash_parser.js'
       cache: false
 
 parsers:
@@ -67,6 +67,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     let defined = new Map([
         ['openai', '日本' + locAutoSuffix],
         ['🚀 节点选择', '香港' + locAutoSuffix]
+        ['🐟 漏网之鱼', '日本' + locAutoSuffix]
     ])
     if (selected) {
         for (let select of selected) {
