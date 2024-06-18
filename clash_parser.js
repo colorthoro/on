@@ -73,8 +73,8 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     let defined = new Map([
         ['openai', '日本' + locAutoSuffix],
-        ['节点选择', '香港' + locAutoSuffix],
-        ['漏网之鱼', '日本' + locAutoSuffix],
+        ['🚀 节点选择', '香港' + locAutoSuffix],
+        ['🐟 漏网之鱼', '日本' + locAutoSuffix],
     ]);
     console.log('已定义选中项');
 
@@ -82,7 +82,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         for (let select of selected) {
             console.log('选中项：', select.name, '选中', select.now)
             for (let [key, value] of defined) {
-                if (select.name.includes(key)) {
+                if (select.name == key) {
                     if (select.now !== value) {
                         select.now = value;
                         console.log('已修改选中项：', select.name, '选中', select.now)
