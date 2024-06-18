@@ -19,7 +19,7 @@ parsers:
 module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url, interval, selected }) => {
     console.log('js模块开始预处理')
     const obj = yaml.parse(raw);
-    console.log(obj, name, url, interval, selected);
+    // console.log(obj, name, url, interval, selected);
     let proxies = obj['proxies'].map(v => v.name);
     let groups = obj['proxy-groups'];
 
@@ -28,7 +28,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         type: 'select',
         proxies: [...proxies]
     });
-    console.log('已添加openai组');
+    console.log('已创建openai组, 添加了所有节点');
 
     let proxiesLocationMap = new Map();
     let locAutoSuffix = '-自动选择时延最低';
@@ -59,7 +59,8 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     groups.forEach(v => {
         if (v.name.includes(locAutoSuffix)) return;
-        v.proxies.splice(1, 0, ...groupsLocationMap.keys())
+        v.proxies.splice(1, 0, ...groupsLocationMap.keys());
+        console.log('在', v.name, '组中添加了', groupsLocationMap.keys());
     })
 
     obj.rules = obj.rules.filter((v) => !v.includes(',google,'))
@@ -68,22 +69,31 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     obj.rules.unshift('DOMAIN-KEYWORD,google,openai');
     obj.rules.unshift('DOMAIN-KEYWORD,chatgpt,openai');
     obj.rules.unshift('DOMAIN-KEYWORD,oaiusercontent,openai');
+    console.log('已修改rules');
 
     let defined = new Map([
         ['openai', '日本' + locAutoSuffix],
-        ['🚀 节点选择', '香港' + locAutoSuffix]
-        ['🐟 漏网之鱼', '日本' + locAutoSuffix]
-    ])
+        ['节点选择', '香港' + locAutoSuffix],
+        ['漏网之鱼', '日本' + locAutoSuffix],
+    ]);
+    console.log('已定义选中项');
+
     if (selected) {
         for (let select of selected) {
-            if (defined[select.name]) {
-                select.now = defined[select.name];
-                delete defined[select.name];
+            console.log('选中项：', select.name, '选中', select.now)
+            for (let [key, value] of defined) {
+                if (select.name.includes(key)) {
+                    if (select.now !== value) {
+                        select.now = value;
+                        console.log('已修改选中项：', select.name, '选中', select.now)
+                    }
+                    defined.delete(key);
+                }
             }
-            console.log(select.name, select.now)
         }
         defined.forEach((now, name) => {
             selected.push({ name, now });
+            console.log('已添加选中项：', name, '选中', now)
         });
     }
     console.log('预处理成功')
