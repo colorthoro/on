@@ -70,7 +70,9 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     groups.forEach(v => {
         if (v.name.endsWith(locSuffix) || v.name.endsWith(locAutoSuffix)) return;
-        v.proxies.splice(2, 0, ...groupsLocationMap.keys());
+        let i = v.proxies.findIndex(name => name.includes('转'));
+        if (i == -1) i = v.proxies.length;
+        v.proxies.splice(i, 0, ...groupsLocationMap.keys());
         console.log('在', v.name, '组中添加了', groupsLocationMap.keys());
     })
 
