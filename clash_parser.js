@@ -28,6 +28,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         type: 'select',
         proxies: [...proxies]
     });
+    console.log('已添加openai组');
 
     let proxiesLocationMap = new Map();
     let locAutoSuffix = '-自动选择时延最低';
@@ -35,7 +36,10 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         let match = v.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;
         let loc = match[1] + locAutoSuffix;
-        if (!proxiesLocationMap.get(loc)) proxiesLocationMap.set(loc, [v]);
+        if (!proxiesLocationMap.get(loc)) {
+            console.log('识别到', match[1]);
+            proxiesLocationMap.set(loc, [v]);
+        }
         else proxiesLocationMap.get(loc).push(v);
     });
     let groupsLocationMap = new Map();
@@ -50,6 +54,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         };
         groupsLocationMap.set(k, obj);
         groups.push(obj);
+        console.log('已添加', k);
     })
 
     groups.forEach(v => {
