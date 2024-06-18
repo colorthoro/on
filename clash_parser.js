@@ -46,12 +46,12 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     let groupsLocationMap = new Map();
     proxiesLocationMap.forEach((v, locName) => {
         let obj0 = {
-            name: locName,
+            name: locName + locSuffix,
             type: 'select',
             proxies: v,
         };
         groups.push(obj0);
-        console.log('已创建', locName, '组');
+        console.log('已创建', locName + locSuffix, '组');
         let obj = {
             name: locName + locAutoSuffix,
             type: 'url-test',
@@ -64,7 +64,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
         console.log('已创建', locName + locAutoSuffix, '组');
 
         groupsLocationMap.set(locName + locAutoSuffix, obj);
-        groupsLocationMap.set(locName, obj0);
+        groupsLocationMap.set(locName + locSuffix, obj0);
     })
 
     groups.forEach(v => {
