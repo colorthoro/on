@@ -31,35 +31,45 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
     console.log('已创建openai组, 添加了所有节点');
 
     let proxiesLocationMap = new Map();
+    let locSuffix = '-手动';
     let locAutoSuffix = '-自动选择时延最低';
     proxies.forEach(v => {
         let match = v.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;
-        let loc = match[1] + locAutoSuffix;
-        if (!proxiesLocationMap.get(loc)) {
-            console.log('识别到', match[1]);
-            proxiesLocationMap.set(loc, [v]);
+        let locName = match[1];
+        if (!proxiesLocationMap.get(locName)) {
+            console.log('识别到', locName);
+            proxiesLocationMap.set(locName, [v]);
         }
-        else proxiesLocationMap.get(loc).push(v);
+        else proxiesLocationMap.get(locName).push(v);
     });
     let groupsLocationMap = new Map();
-    proxiesLocationMap.forEach((v, k) => {
+    proxiesLocationMap.forEach((v, locName) => {
+        let obj0 = {
+            name: locName,
+            type: 'select',
+            proxies: v,
+        };
+        groups.push(obj0);
+        console.log('已创建', locName, '组');
         let obj = {
-            name: k,
+            name: locName + locAutoSuffix,
             type: 'url-test',
             proxies: v,
             url: 'http://www.gstatic.com/generate_204',
             interval: 60,
             tolerance: 70,
         };
-        groupsLocationMap.set(k, obj);
         groups.push(obj);
-        console.log('已添加', k);
+        console.log('已创建', locName + locAutoSuffix, '组');
+
+        groupsLocationMap.set(locName + locAutoSuffix, obj);
+        groupsLocationMap.set(locName, obj0);
     })
 
     groups.forEach(v => {
-        if (v.name.includes(locAutoSuffix)) return;
-        v.proxies.splice(1, 0, ...groupsLocationMap.keys());
+        if (v.name.endsWith(locSuffix) || v.name.endsWith(locAutoSuffix)) return;
+        v.proxies.splice(2, 0, ...groupsLocationMap.keys());
         console.log('在', v.name, '组中添加了', groupsLocationMap.keys());
     })
 
