@@ -73,9 +73,10 @@ async function work() {
     // 将result转为txt文件导出
     let txt = '';
     for (let item of allAnsTxts) txt += item + '\n';
+    let name = document.querySelector('.cs-header-title').textContent;
     let a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
-    a.download = 'result.txt';
+    a.download = name + '.txt';
     a.click();
     // 等待下载完成
     await new Promise(ok => setTimeout(ok, 1000));
