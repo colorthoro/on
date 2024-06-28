@@ -9,7 +9,7 @@ async function myFrame(src, func, id) {
 }
 async function work() {
     let res = undefined, src = location.href;
-    let myMap = new Map();
+    let myMap = new Map(), allAnsTxts = new Set();
     let done = false, cnt = 1;
     while (!done) {
         if (cnt > 2) {
@@ -25,46 +25,65 @@ async function work() {
         }
         res = await myFrame(src, async (frame) => {
             let doc = frame.contentWindow.document;
-            myMap.forEach(async (v, k) => {
+            for (let k of myMap.keys()) {
+                let ansTxt = '';
+                let v = myMap.get(k);
                 // 处理每个已知题目
                 let options = doc.getElementsByName(k.split('_')[1]);
                 if (!options.length) return;
                 let title = options[0].parentNode.parentNode.parentNode.parentNode.firstElementChild.textContent;
-                console.log(title, options, k, v);
+                ansTxt += title + '\n';
+                console.log(title, k, v);
                 await new Promise(ok => setTimeout(ok, 500));
                 options.forEach(input => {
                     let abc = $(input).parent().next().text();
                     let info = $(input).parent().parent().next().text();
                     let option = $(input).parent().parent().parent();
                     console.log(abc, info);
-                    if (!input.checked && (v.includes(abc) || v.includes(info))) option.click();
+                    if (!input.checked && (v.includes(abc) || v.includes(info))) {
+                        option.click();
+                        ansTxt += abc + '\n' + info + '\n';
+                    }
                     else if (input.checked && !(v.includes(abc) || v.includes(info))) option.click();
                 });
-            });
+                allAnsTxts.add(ansTxt);
+            };
+            done = true;
+            for (let item of doc.querySelectorAll('.cs-test-item')) {
+                let checked = false;
+                item.querySelectorAll('input').forEach(input => { if (input.checked) checked = true; });
+                if (checked) break;
+                done = false;
+                // 未知题目直接选择第二个选项
+                item.querySelectorAll('div.cs-test-option:nth-child(2n)')[0].click();
+            };
+            try {
+                await new Promise(ok => setTimeout(ok, 500));
+                doc.querySelectorAll('#goNext')[0].click(); // 提交
+                await new Promise(ok => setTimeout(ok, 500));
+                doc.querySelectorAll('a.layui-layer-btn1')[0].click(); // 确认
+                await new Promise(ok => setTimeout(ok, 500));
+                doc.querySelectorAll('a.layui-layer-btn0')[0].click(); // 查看结果
+                let ok, loadedPromise = new Promise(i => ok = i);
+                frame.onload = ok;
+                await loadedPromise;
+            } catch (e) { }
         }, `myFrame-${cnt++}`);
-        done = true;
-        doc.querySelectorAll('.cs-test-item').forEach(item => {
-            let checked = false;
-            item.querySelectorAll('input').forEach(input => {
-                if (input.checked) checked = true;
-            });
-            if (checked) return;
-            done = false;
-            // 处理未知题目
-            item.querySelectorAll('div.cs-test-option:nth-child(2n)').forEach(option => {
-                option.click();
-            });
-        });
-        try {
-            await new Promise(ok => setTimeout(ok, 500));
-            doc.querySelectorAll('#goNext')[0].click(); // 提交
-            await new Promise(ok => setTimeout(ok, 500));
-            doc.querySelectorAll('a.layui-layer-btn1')[0].click(); // 确认
-            await new Promise(ok => setTimeout(ok, 500));
-            doc.querySelectorAll('a.layui-layer-btn0')[0].click(); // 查看结果
-            let ok, loadedPromise = new Promise(i => ok = i);
-            frame.onload = ok;
-            await loadedPromise;
-        } catch (e) { }
     }
+    // 将result转为txt文件导出
+    let txt = '';
+    for (let item of allAnsTxts) txt += item + '\n';
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
+    a.download = 'result.txt';
+    a.click();
+    // 等待下载完成
+    await new Promise(ok => setTimeout(ok, 1000));
+    // 刷新页面
+    location.reload();
+    let ok, loadedPromise = new Promise(i => ok = i);
+    document.onload = ok;
+    await loadedPromise;
+
 }
+work();
