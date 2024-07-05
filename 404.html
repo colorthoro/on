@@ -8,6 +8,7 @@
         // https://colorthoro.github.io/onJS/2
         // https://colorthoro.gitee.io/on-js/I8DPN1
         var paths = location.pathname.split("/");  // pathname: 去除"https:/"之后的部分
+        console.log(paths);
         var issueNumber = paths[2]; // ['', 'on-js', 'issueNumber']
         var repohomepage = location.origin + paths.slice(0, -1).join('/');
         lead().catch(err => { window.alert(err); location.replace(repohomepage); });
