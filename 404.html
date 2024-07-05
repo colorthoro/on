@@ -11,7 +11,7 @@
         var issueNumber = paths[2]; // ['', 'on-js', 'issueNumber']
         if (!issueNumber) throw new Error('no issueNumber.');
         var repohomepage = location.origin + paths.slice(0, -1).join('/');
-        lead().catch(err => location.replace(repohomepage));
+        lead().catch(err => { window.alert(err); location.replace(repohomepage); });
         async function lead() {
             let url = await getIssueTitleUrl();
             url.replace('[dddcg:ccair14]', await getIP('ccair14'));
