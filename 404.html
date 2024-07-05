@@ -28,7 +28,10 @@
             // https://api.github.com/repos/{owner}/{repo}/issues/
             var ISSUES_LINK = "https://api.github.com/repos/colorthoro/onJS/issues/";
             var queryUrl = ISSUES_LINK + issueNumber;
-            let payload = await fetch(queryUrl).then(res => res.json());
+            var bearer_token = "Bearer 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"
+            let payload = await fetch(queryUrl, {
+                headers: { 'Authorization': bearer_token }
+            }).then(res => res.json());
             var message = payload.message;
             if (message == 'Issue') throw new Error('Issue not found.');
             var title = payload.title;
