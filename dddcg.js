@@ -1,6 +1,6 @@
 (async () => {
     // DDNS Downloader Client with Gitee
-    const GITEE_TOKEN = '4afb627b2979b9d5c653246be733ab27'
+    const GITEE_TOKEN = 'b6eced39dfb466ddb69a7525687928bd'
     const GITEE_GIST_ID = 'k9b54vytfj2g3xa7hoi0n78'
     let content;
     let ok, err, p = new Promise((i, j) => (ok = i, err = j));
