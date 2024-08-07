@@ -42,7 +42,7 @@ async function work() {
                     console.log(abc, info);
                     if (!input.checked && (v.includes(abc) || v.includes(info))) {
                         option.click();
-                        ansTxt += abc + '\n' + info + '\n';
+                        ansTxt += abc + '. ' + info + '\n';
                     }
                     else if (input.checked && !(v.includes(abc) || v.includes(info))) option.click();
                 });
