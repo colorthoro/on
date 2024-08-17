@@ -20,6 +20,7 @@
         <hr>
         <input type="checkbox" name="awaking" id="awaking">
         <label for="awaking">唤醒</label>
+        <button id="reawaking" style="display: none;">重新唤醒</button>
         <div id="links">
             <a href="spaceship.html">小火箭</a>
             <a href="waterMark.html">水印制作</a>
@@ -56,16 +57,20 @@
 
         // 唤醒状态切换
         awaking = document.getElementById('awaking');
+        reawaking = document.getElementById('reawaking');
         async function awake(){
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
                 wakeLock.onrelease = () => {
                     if (awaking.checked) {
                         console.log('发生非主动释放')
-                        awake();
+                        reawaking.style.display = 'block';
                     }
                 };
                 console.log('唤醒成功');
+                if (reawaking.style.display == 'block') {
+                    reawaking.style.display = 'none';
+                }
             } catch (error) {
                 awaking.checked = false;
                 console.log('唤醒失败');
@@ -79,12 +84,13 @@
                 console.log('释放成功');
             }
         });
+        reawaking.onclick = awake;
         awaking.click();
         // 返回页面后恢复唤醒状态
         window.addEventListener('visibilitychange', async () => {
             console.log(document.visibilityState);
             if (document.visibilityState === 'visible') {
-                if (awaking.checked) awake();
+                reawaking.click();
             }
         });
     </script>
