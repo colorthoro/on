@@ -11,82 +11,84 @@
 <body>
     <div>
         <div id="time"></div>
-        <div>
-            <dic id="loc"></dic>
-            <div id="loc_name"></div>
-            <div id="speed"></div>
-            <div id="heading"></div>
-            <button id="refresh_loc">刷新定位</button>
-        </div>
+        <dic id="loc" style="white-space: pre-wrap;"></dic>
+        <hr>
+        <div id="localstorage" style="white-space: pre-wrap;">localStorage:<ul></ul></div>
+        <hr>
+        <input type="checkbox" name="awaking" id="awaking">
+        <label for="awaking">唤醒</label>
         <div id="links">
             <a href="spaceship.html">小火箭</a>
             <a href="waterMark.html">水印制作</a>
             <a href="bili.html">bilibili</a>
+            <a href="百人万元模拟_ECharts.html">百人万元模拟_ECharts</a>
         </div>
-        <div class="localstorage" style="white-space: pre-wrap;"></div>
     </div>
     <script>
-        // let getDate = () => new Date();
-        // setInterval((x) => {
-        //     document.getElementById('time').innerText = x().toLocaleString();
-        // } , 1000, getDate);
-        // 等效
         setInterval(() => {
             let x = new Date();
             document.getElementById('time').innerText = x.toLocaleString();
         }, 1000);
 
+
+        // 显示localStorage
+        function rm(key) {
+            localStorage.removeItem(key);
+            document.getElementById(key).remove();
+        }
         for (let i = 0; i < localStorage.length; i++) {
             let key = localStorage.key(i);
-            let value = JSON.stringify(JSON.parse(localStorage.getItem(key)), null, 4);
-            document.getElementsByClassName('localstorage')[0].innerHTML += (
-                `${key} : ${value}\n<a href="javascript:localStorage.removeItem('${key}')">删除</a>\n\n`
+            let value_str = localStorage.getItem(key);
+            try {
+                let value_obj = JSON.parse(value_str);
+                value_str = JSON.stringify(value_obj, null, 4);
+                console.log(key, value_obj);
+            } catch (error) {
+                console.log(key, value_str);
+            }
+            document.querySelector('#localstorage>ul').innerHTML += (
+                `<li id='${key}'>${key}: ${value_str} <button onclick="rm('${key}')">删除</button></li>`
             )
         }
 
-        class apiCaller {
-            constructor() {
-                this.sender = new XMLHttpRequest();
-            }
-            mkUrl(obj) {
-                let url = obj.base;
-                let keys = Object.keys(obj.kvs);
-                for (let i = 0; i < keys.length; i++) {
-                    let k = keys[i];
-                    let v = obj.kvs[k];
-                    if (i == 0) {
-                        url += '?';
-                    }
-                    url = url.concat(k, '=', v);
-                    if (i != keys.length - 1) {
-                        url += '&';
-                    }
+        // 唤醒状态切换
+        let awaking = document.getElementById('awaking');
+        awaking.addEventListener('change', async () => {
+            if (awaking.checked) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('唤醒成功');
+                } catch (error) {
+                    console.log('唤醒失败');
+                    awaking.checked = false;
                 }
-                return url
+            } else {
+                wakeLock.release();
+                console.log('释放成功');
             }
-            get(url) {
-                if (!this.sender) {
-                    console.log('no sender!');
-                    return false;
+        });
+        awaking.click();
+
+    </script>
+    <script>
+        function mkUrl(obj) {
+            let url = obj.base;
+            let keys = Object.keys(obj.kvs);
+            for (let i = 0; i < keys.length; i++) {
+                let k = keys[i];
+                let v = obj.kvs[k];
+                if (i == 0) {
+                    url += '?';
                 }
-                this.sender.open("GET", url, true);//设置请求参数（请求方式，url，异步）
-                this.sender.send();
-                return true;
+                url = url.concat(k, '=', v);
+                if (i != keys.length - 1) {
+                    url += '&';
+                }
             }
-            success(func) {
-                this.sender.onreadystatechange = () => {
-                    if (this.sender.readyState == 4 && this.sender.status == 200) { //请求完成并且状态码为200
-                        let resStr = this.sender.responseText;
-                        let resObj = JSON.parse(resStr);
-                        func(resObj);
-                    }
-                };
-            }
+            return url
         }
 
-        let api = new apiCaller();
-
-        function gaoDeLoc(gaodeLntLatStr) {
+        async function gaoDeLoc(gaodeLntLatStr) {
             let max_radius = 500;
             let requestObj = {
                 base: 'https://restapi.amap.com/v3/geocode/regeo',
@@ -96,21 +98,20 @@
                     radius: 0,
                 }
             }
-            api.get(api.mkUrl(requestObj))
-            api.success((resObj) => {
-                console.log(resObj);
-                console.log(`range ${requestObj.kvs.radius}`)
-                if (resObj.status != 1 && requestObj.kvs.radius <= max_radius) {
+            let resObj = null;
+            while(1){
+                resObj = await fetch(mkUrl(requestObj)).then((res) => res.json())
+                console.log(`range ${requestObj.kvs.radius} get loc_name res ${resObj}`)
+                if(resObj.status == 1) break;
+                if (requestObj.kvs.radius <= max_radius) {
                     requestObj.kvs.radius += 50;
-                } else {
-                    document.getElementById('loc_name').innerHTML = (
-                        resObj.regeocode.formatted_address
-                    );
-                }
-            })
+                } else break;
+            }
+            console.log(resObj)
+            return resObj
         }
 
-        function gaoDeLntLat(longitude, latitude) {
+        async function gaoDeLntLat(longitude, latitude) {
             longitude = longitude.toFixed(6);
             latitude = latitude.toFixed(6);
             let requestObj = {
@@ -121,27 +122,25 @@
                     coordsys: 'gps',
                 }
             }
-            api.get(api.mkUrl(requestObj));
-            api.success((resObj) => {
-                console.log(resObj);
-                gaoDeLoc(resObj.locations);
-            })
+            gaodeLntLatObj = await fetch(mkUrl(requestObj)).then((res) => res.json())
+            console.log(gaodeLntLatObj)
+            return gaodeLntLatObj
         }
 
         function refreshLoc() {
+            let locEl = document.getElementById('loc');
             navigator.geolocation.getCurrentPosition(
-                (position) => {
+                async (position) => {
                     console.log(position);
-                    document.getElementById('loc').innerText = (
-                        position.coords.longitude + ' ' + position.coords.latitude
-                    );
-                    gaoDeLntLat(position.coords.longitude, position.coords.latitude)
-                    // document.getElementById('speed').innerHTML = (
-                    //     position.coords.speed
-                    // )
-                    // document.getElementById('heading').innerHTML = (
-                    //     position.coords.heading
-                    // )
+                    locEl.innerHTML = `<button onclick='refreshLoc'>刷新定位</button>`
+                    locEl.innerHTML += JSON.stringify(position, null, 4);
+
+                    gdllobj = await gaoDeLntLat(position.coords.longitude, position.coords.latitude)
+                    locEl.innerHTML += '\ngaoDeLntLat: ' + JSON.stringify(gdllobj, null, 4);
+
+                    resObj = await gaoDeLoc(gdllobj.locations)
+                    locEl.innerHTML += '\ngaoDeLoc: ' + JSON.stringify(resObj, null, 4);
+
                 },
                 (positionError) => {
                     console.log(positionError.code, positionError.message)
@@ -152,7 +151,6 @@
             );
         }
         refreshLoc();
-        document.getElementById('refresh_loc').onclick = refreshLoc;
         // setInterval(refreshLoc, 5000);
 
     </script>
