@@ -11,7 +11,10 @@
 <body>
     <div>
         <div id="time"></div>
-        <dic id="loc" style="white-space: pre-wrap;"></dic>
+        <button onclick="refreshLoc()">loc</button>
+        <button onclick="switchLoc()">switch</button>
+        <div id="loc" style="white-space: pre-wrap;"></div>
+        <div id="floc" style="white-space: pre-wrap;"></div>
         <hr>
         <div id="localstorage" style="white-space: pre-wrap;">localStorage:<ul></ul></div>
         <hr>
@@ -128,19 +131,17 @@
         }
 
         function refreshLoc() {
-            let locEl = document.getElementById('loc');
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     console.log(position);
-                    locEl.innerHTML = `<button onclick='refreshLoc'>刷新定位</button>`
-                    locEl.innerHTML += JSON.stringify(position, null, 4);
-
+                    locEl.innerHTML = JSON.stringify(position, null, 4);
+                    
                     gdllobj = await gaoDeLntLat(position.coords.longitude, position.coords.latitude)
                     locEl.innerHTML += '\ngaoDeLntLat: ' + JSON.stringify(gdllobj, null, 4);
-
+                    
                     resObj = await gaoDeLoc(gdllobj.locations)
                     locEl.innerHTML += '\ngaoDeLoc: ' + JSON.stringify(resObj, null, 4);
-
+                    
                 },
                 (positionError) => {
                     console.log(positionError.code, positionError.message)
@@ -150,7 +151,16 @@
                 }
             );
         }
+
+        locEl = document.getElementById('loc');
+        flocEl = document.getElementById('floc');
+        flocEl.style.display = 'none';
+        flocEl.innerHTML = '\n'.repeat(100);
         refreshLoc();
+        function switchLoc() {
+            locEl.style.display = locEl.style.display == 'none' ? 'block' : 'none';
+            flocEl.style.display = flocEl.style.display == 'none' ? 'block' : 'none';
+        }
         // setInterval(refreshLoc, 5000);
 
     </script>
