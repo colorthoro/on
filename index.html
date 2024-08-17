@@ -55,14 +55,20 @@
         }
 
         // 唤醒状态切换
-        let awaking = document.getElementById('awaking');
+        awaking = document.getElementById('awaking');
         async function awake(){
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.onrelease = () => {
+                    if (awaking.checked) {
+                        console.log('发生非主动释放')
+                        awake();
+                    }
+                };
                 console.log('唤醒成功');
             } catch (error) {
-                console.log('唤醒失败');
                 awaking.checked = false;
+                console.log('唤醒失败');
             }
         }
         awaking.addEventListener('change', () => {
@@ -70,7 +76,6 @@
                 awake();
             } else {
                 wakeLock.release();
-                console.log('释放成功');
             }
         });
         awaking.click();
