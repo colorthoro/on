@@ -56,22 +56,31 @@
 
         // 唤醒状态切换
         let awaking = document.getElementById('awaking');
-        awaking.addEventListener('change', async () => {
+        async function awake(){
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('唤醒成功');
+            } catch (error) {
+                console.log('唤醒失败');
+                awaking.checked = false;
+            }
+        }
+        awaking.addEventListener('change', () => {
             if (awaking.checked) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('唤醒成功');
-                } catch (error) {
-                    console.log('唤醒失败');
-                    awaking.checked = false;
-                }
+                awake();
             } else {
                 wakeLock.release();
                 console.log('释放成功');
             }
         });
         awaking.click();
-
+        // 返回页面后恢复唤醒状态
+        window.addEventListener('visibilitychange', async () => {
+            console.log(document.visibilityState);
+            if (document.visibilityState === 'visible') {
+                if (awaking.checked) awake();
+            }
+        });
     </script>
     <script>
         function mkUrl(obj) {
