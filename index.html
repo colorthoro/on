@@ -95,7 +95,7 @@
         window.addEventListener('visibilitychange', async () => {
             console.log(document.visibilityState);
             if (document.visibilityState === 'visible') {
-                reawaking.click();
+                if(reawaking.style.display === 'block') reawaking.click();
             }
         });
     </script>
