@@ -29,10 +29,15 @@
         </div>
     </div>
     <script>
-        setInterval(() => {
-            let x = new Date();
-            document.getElementById('time').innerText = x.toLocaleString();
-        }, 1000);
+        o_console_log = console.log;
+        console.log = function () {
+            o_console_log.apply(null, [new Date().toLocaleString(), ...arguments]);
+        };
+
+        show_time = () => document
+            .getElementById('time').innerText = new Date().toLocaleString();
+        show_time();
+        setInterval(show_time, 1000);
 
 
         // 显示localStorage
