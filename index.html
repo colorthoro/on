@@ -131,13 +131,12 @@
             let resObj = null;
             while(1){
                 resObj = await fetch(mkUrl(requestObj)).then((res) => res.json())
-                console.log(`range ${requestObj.kvs.radius} get loc_name res ${resObj}`)
+                console.log(`range ${requestObj.kvs.radius} get`, resObj);
                 if(resObj.status == 1) break;
                 if (requestObj.kvs.radius <= max_radius) {
                     requestObj.kvs.radius += 50;
                 } else break;
             }
-            console.log(resObj)
             return resObj
         }
 
