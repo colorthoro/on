@@ -100,6 +100,207 @@
         });
     </script>
     <script>
+        function jsonStringifyWithComments(obj, infoNode, space = 2) {
+            const INDENT = ' '.repeat(space);
+            
+            function stringifyWithComments(value, valueInfoNode, indent = '') {
+                let comment = '';
+                if (valueInfoNode && valueInfoNode.__node_info){
+                    comment = ` // ${valueInfoNode.__node_info}`;
+                }
+                console.log(value, valueInfoNode, comment);
+                if (typeof value === 'object' && value !== null) {
+                    let isArray = Array.isArray(value);
+                    let items = [];
+                    let nextValueInfoNode = {...valueInfoNode, ...{__node_info: null}};
+                    for (let key in value) {
+                        !isArray && (nextValueInfoNode = valueInfoNode[key]);
+                        let itemValue = stringifyWithComments(value[key], nextValueInfoNode, indent + INDENT);
+                        if (isArray) {
+                            items.push(`${indent + INDENT}${itemValue}`);
+                        } else {
+                            items.push(`${indent + INDENT}"${key}": ${itemValue}`);
+                        }
+                    }
+                    if (items.length === 0) {
+                        return isArray ? '[]' : '{}' + comment;
+                    }
+                    if (isArray) {
+                        return `[${comment}\n${items.join('\n')}\n${indent}]`;
+                    } else {
+                        return `{${comment}\n${items.join('\n')}\n${indent}}`;
+                    }
+                } else if (typeof value === 'string') {
+                    return `"${value},"${comment}`;
+                } else {
+                    return String(value) + comment;
+                }
+            }
+
+            return stringifyWithComments(obj, infoNode);
+        }
+
+        infoNode = {
+            "regeocode": {
+                "__node_info": "包含详细的地理编码信息",
+                "addressComponent": {
+                    "__node_info": "描述当前位置的行政区域信息",
+                    "province": {
+                        "__node_info": "省或直辖市名称，例如 '北京市'"
+                    },
+                    "city": {
+                        "__node_info": "市级行政区名称，可能与省同名或者为空，取决于省的类型"
+                    },
+                    "citycode": {
+                        "__node_info": "城市的电话区号"
+                    },
+                    "district": {
+                        "__node_info": "区级行政区域名称"
+                    },
+                    "adcode": {
+                        "__node_info": "行政区域代码"
+                    },
+                    "township": {
+                        "__node_info": "乡镇或街道名称（此字段可选，不是所有请求都有）"
+                    },
+                    "towncode": {
+                        "__node_info": "乡镇/街道编码"
+                    },
+                    "neighborhood": {
+                        "__node_info": "描述社区的相关信息",
+                        "type": {
+                            "__node_info": "社区类型，例如 '住宅区' 或 '商业区'"
+                        }
+                    },
+                    "building": {
+                        "__node_info": "描述建筑物的相关信息",
+                        "type": {
+                            "__node_info": "建筑物类型，例如 '写字楼' 或 '商场'"
+                        }
+                    },
+                    "streetNumber": {
+                        "__node_info": "描述门牌号的相关信息",
+                        "street": {
+                            "__node_info": "街道名称"
+                        },
+                        "number": {
+                            "__node_info": "门牌号码"
+                        },
+                        "location": {
+                            "__node_info": "门牌所在的经纬度坐标"
+                        },
+                        "direction": {
+                            "__node_info": "门牌所在位置相对于请求位置的方向"
+                        },
+                        "distance": {
+                            "__node_info": "门牌到请求位置的距离"
+                        }
+                    },
+                    "seaArea": {
+                        "__node_info": "海域名称（若适用）"
+                    },
+                    "businessAreas": {
+                        "__node_info": "描述商圈的相关信息",
+                        "businessArea": {
+                            "__node_info": "商圈名称"
+                        },
+                        "location": {
+                            "__node_info": "商圈中心的经纬度"
+                        },
+                        "name": {
+                            "__node_info": "商圈中的主要建筑物或地标"
+                        }
+                    }
+                },
+                "roads": {
+                    "__node_info": "描述道路的相关信息",
+                    "distance": {
+                        "__node_info": "道路到请求位置的距离"
+                    },
+                    "direction": {
+                        "__node_info": "道路所在方向"
+                    },
+                    "location": {
+                        "__node_info": "道路的经纬度坐标"
+                    }
+                },
+                "roadinters": {
+                    "__node_info": "描述道路交叉口的相关信息",
+                    "location": {
+                        "__node_info": "交叉口的经纬度坐标"
+                    },
+                    "distance": {
+                        "__node_info": "交叉口到请求位置的距离"
+                    },
+                    "direction": {
+                        "__node_info": "交叉口所在方向"
+                    },
+                    "first_id": {
+                        "__node_info": "第一条道路的ID"
+                    },
+                    "first_name": {
+                        "__node_info": "第一条道路的名称"
+                    },
+                },
+                "pois": {
+                    "__node_info": "描述兴趣点 (POI) 的相关信息",
+                    "id": {
+                        "__node_info": "POI 的唯一标识符"
+                    },
+                    "name": {
+                        "__node_info": "POI 的名称"
+                    },
+                    "type": {
+                        "__node_info": "POI 的类型，例如 '餐厅' 或 '银行'"
+                    },
+                    "tel": {
+                        "__node_info": "POI 的联系电话"
+                    },
+                    "distance": {
+                        "__node_info": "POI 到请求位置的距离"
+                    },
+                    "direction": {
+                        "__node_info": "POI 所在方向"
+                    },
+                    "address": {
+                        "__node_info": "POI 的详细地址"
+                    },
+                    "location": {
+                        "__node_info": "POI 的经纬度坐标"
+                    },
+                    "businessarea": {
+                        "__node_info": "POI 所在的商圈"
+                    }
+                },
+                "aois": {
+                    "__node_info": "描述兴趣区域 (AOI) 的相关信息",
+                    "id": {
+                        "__node_info": "AOI 的唯一标识符"
+                    },
+                    "name": {
+                        "__node_info": "AOI 的名称"
+                    },
+                    "adcode": {
+                        "__node_info": "AOI 所在的行政区域代码"
+                    },
+                    "location": {
+                        "__node_info": "AOI 的中心经纬度"
+                    },
+                    "area": {
+                        "__node_info": "AOI 的面积"
+                    },
+                    "distance": {
+                        "__node_info": "AOI 到请求位置的距离"
+                    },
+                    "type": {
+                        "__node_info": "AOI 的类型，例如 '商业' 或 '住宅'"
+                    }
+                }
+            }
+        }
+
+    </script>
+    <script>
         function mkUrl(obj) {
             let url = obj.base;
             let keys = Object.keys(obj.kvs);
@@ -166,7 +367,7 @@
                     locEl.innerHTML += '\ngaoDeLntLat: ' + JSON.stringify(gdllobj, null, 4);
                     
                     resObj = await gaoDeLoc(gdllobj.locations)
-                    locEl.innerHTML += '\ngaoDeLoc: ' + JSON.stringify(resObj, null, 4);
+                    locEl.innerHTML += '\ngaoDeLoc: ' + jsonStringifyWithComments(resObj, infoNode, 4);
                     
                 },
                 (positionError) => {
