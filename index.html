@@ -106,9 +106,8 @@
             function stringifyWithComments(value, valueInfoNode, indent = '') {
                 let comment = '';
                 if (valueInfoNode && valueInfoNode.__node_info){
-                    comment = ` // ${valueInfoNode.__node_info}`;
+                    comment = `<span style='color: green; opacity: 0.3;'>  // ${valueInfoNode.__node_info}</span>`;
                 }
-                console.log(value, valueInfoNode, comment);
                 if (typeof value === 'object' && value !== null) {
                     let isArray = Array.isArray(value);
                     let items = [];
