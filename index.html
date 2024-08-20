@@ -11,82 +11,313 @@
 <body>
     <div>
         <div id="time"></div>
-        <div>
-            <dic id="loc"></dic>
-            <div id="loc_name"></div>
-            <div id="speed"></div>
-            <div id="heading"></div>
-            <button id="refresh_loc">刷新定位</button>
-        </div>
+        <button onclick="refreshLoc()">loc</button>
+        <button onclick="switchLoc()">switch</button>
+        <div id="loc" style="white-space: pre;overflow: auto;"></div>
+        <div id="floc" style="white-space: pre-wrap;"></div>
+        <hr>
+        <div id="localstorage" style="white-space: pre;overflow: auto;">localStorage:<ul></ul></div>
+        <hr>
+        <input type="checkbox" name="awaking" id="awaking">
+        <label for="awaking">唤醒</label>
+        <button id="reawaking" style="display: none;">重新唤醒</button>
         <div id="links">
             <a href="spaceship.html">小火箭</a>
             <a href="waterMark.html">水印制作</a>
             <a href="bili.html">bilibili</a>
+            <a href="百人万元模拟_ECharts.html">百人万元模拟_ECharts</a>
         </div>
-        <div class="localstorage" style="white-space: pre-wrap;"></div>
     </div>
     <script>
-        // let getDate = () => new Date();
-        // setInterval((x) => {
-        //     document.getElementById('time').innerText = x().toLocaleString();
-        // } , 1000, getDate);
-        // 等效
-        setInterval(() => {
-            let x = new Date();
-            document.getElementById('time').innerText = x.toLocaleString();
-        }, 1000);
+        o_console_log = console.log;
+        console.log = function () {
+            o_console_log.apply(null, [new Date().toLocaleString(), ...arguments]);
+        };
 
+        show_time = () => document
+            .getElementById('time').innerText = new Date().toLocaleString();
+        show_time();
+        setInterval(show_time, 1000);
+
+
+        // 显示localStorage
+        function rm(key) {
+            localStorage.removeItem(key);
+            document.getElementById(key).remove();
+        }
         for (let i = 0; i < localStorage.length; i++) {
             let key = localStorage.key(i);
-            let value = JSON.stringify(JSON.parse(localStorage.getItem(key)), null, 4);
-            document.getElementsByClassName('localstorage')[0].innerHTML += (
-                `${key} : ${value}\n<a href="javascript:localStorage.removeItem('${key}')">删除</a>\n\n`
+            let value_str = localStorage.getItem(key);
+            try {
+                let value_obj = JSON.parse(value_str);
+                value_str = JSON.stringify(value_obj, null, 4);
+                console.log(key, value_obj);
+            } catch (error) {
+                console.log(key, value_str);
+            }
+            document.querySelector('#localstorage>ul').innerHTML += (
+                `<li id='${key}'>${key}: ${value_str} <button onclick="rm('${key}')">删除</button></li>`
             )
         }
 
-        class apiCaller {
-            constructor() {
-                this.sender = new XMLHttpRequest();
-            }
-            mkUrl(obj) {
-                let url = obj.base;
-                let keys = Object.keys(obj.kvs);
-                for (let i = 0; i < keys.length; i++) {
-                    let k = keys[i];
-                    let v = obj.kvs[k];
-                    if (i == 0) {
-                        url += '?';
-                    }
-                    url = url.concat(k, '=', v);
-                    if (i != keys.length - 1) {
-                        url += '&';
-                    }
-                }
-                return url
-            }
-            get(url) {
-                if (!this.sender) {
-                    console.log('no sender!');
-                    return false;
-                }
-                this.sender.open("GET", url, true);//设置请求参数（请求方式，url，异步）
-                this.sender.send();
-                return true;
-            }
-            success(func) {
-                this.sender.onreadystatechange = () => {
-                    if (this.sender.readyState == 4 && this.sender.status == 200) { //请求完成并且状态码为200
-                        let resStr = this.sender.responseText;
-                        let resObj = JSON.parse(resStr);
-                        func(resObj);
+        // 唤醒状态切换
+        awaking = document.getElementById('awaking');
+        reawaking = document.getElementById('reawaking');
+        async function awake(){
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.onrelease = () => {
+                    if (awaking.checked) {
+                        console.log('发生非主动释放')
+                        reawaking.style.display = 'block';
                     }
                 };
+                console.log('唤醒成功');
+                if (reawaking.style.display == 'block') {
+                    reawaking.style.display = 'none';
+                }
+            } catch (error) {
+                awaking.checked = false;
+                console.log('唤醒失败');
+            }
+        }
+        awaking.addEventListener('change', () => {
+            if (awaking.checked) {
+                awake();
+            } else {
+                wakeLock.release();
+                console.log('释放成功');
+            }
+        });
+        reawaking.onclick = awake;
+        awaking.click();
+        // 返回页面后恢复唤醒状态
+        window.addEventListener('visibilitychange', async () => {
+            console.log(document.visibilityState);
+            if (document.visibilityState === 'visible') {
+                if(reawaking.style.display === 'block') reawaking.click();
+            }
+        });
+    </script>
+    <script>
+        function jsonStringifyWithComments(obj, infoNode, space = 2) {
+            const INDENT = ' '.repeat(space);
+            
+            function stringifyWithComments(value, valueInfoNode, indent = '') {
+                let comment = '';
+                if (valueInfoNode && valueInfoNode.__node_info){
+                    comment = `<span style='color: green; opacity: 0.3;'>  // ${valueInfoNode.__node_info}</span>`;
+                }
+                if (typeof value === 'object' && value !== null) {
+                    let isArray = Array.isArray(value);
+                    let items = [];
+                    let nextValueInfoNode = {...valueInfoNode, ...{__node_info: null}};
+                    for (let key in value) {
+                        !isArray && (nextValueInfoNode = valueInfoNode[key]);
+                        let itemValue = stringifyWithComments(value[key], nextValueInfoNode, indent + INDENT);
+                        if (isArray) {
+                            items.push(`${indent + INDENT}${itemValue}`);
+                        } else {
+                            items.push(`${indent + INDENT}"${key}": ${itemValue}`);
+                        }
+                    }
+                    if (items.length === 0) {
+                        return isArray ? '[]' : '{}' + comment;
+                    }
+                    if (isArray) {
+                        return `[${comment}\n${items.join('\n')}\n${indent}]`;
+                    } else {
+                        return `{${comment}\n${items.join('\n')}\n${indent}}`;
+                    }
+                } else if (typeof value === 'string') {
+                    return `"${value},"${comment}`;
+                } else {
+                    return String(value) + comment;
+                }
+            }
+
+            return stringifyWithComments(obj, infoNode);
+        }
+
+        infoNode = {
+            "regeocode": {
+                "__node_info": "包含详细的地理编码信息",
+                "addressComponent": {
+                    "__node_info": "描述当前位置的行政区域信息",
+                    "province": {
+                        "__node_info": "省或直辖市名称，例如 '北京市'"
+                    },
+                    "city": {
+                        "__node_info": "市级行政区名称，可能与省同名或者为空，取决于省的类型"
+                    },
+                    "citycode": {
+                        "__node_info": "城市的电话区号"
+                    },
+                    "district": {
+                        "__node_info": "区级行政区域名称"
+                    },
+                    "adcode": {
+                        "__node_info": "行政区域代码"
+                    },
+                    "township": {
+                        "__node_info": "乡镇或街道名称（此字段可选，不是所有请求都有）"
+                    },
+                    "towncode": {
+                        "__node_info": "乡镇/街道编码"
+                    },
+                    "neighborhood": {
+                        "__node_info": "描述社区的相关信息",
+                        "type": {
+                            "__node_info": "社区类型，例如 '住宅区' 或 '商业区'"
+                        }
+                    },
+                    "building": {
+                        "__node_info": "描述建筑物的相关信息",
+                        "type": {
+                            "__node_info": "建筑物类型，例如 '写字楼' 或 '商场'"
+                        }
+                    },
+                    "streetNumber": {
+                        "__node_info": "描述门牌号的相关信息",
+                        "street": {
+                            "__node_info": "街道名称"
+                        },
+                        "number": {
+                            "__node_info": "门牌号码"
+                        },
+                        "location": {
+                            "__node_info": "门牌所在的经纬度坐标"
+                        },
+                        "direction": {
+                            "__node_info": "门牌所在位置相对于请求位置的方向"
+                        },
+                        "distance": {
+                            "__node_info": "门牌到请求位置的距离"
+                        }
+                    },
+                    "seaArea": {
+                        "__node_info": "海域名称（若适用）"
+                    },
+                    "businessAreas": {
+                        "__node_info": "描述商圈的相关信息",
+                        "businessArea": {
+                            "__node_info": "商圈名称"
+                        },
+                        "location": {
+                            "__node_info": "商圈中心的经纬度"
+                        },
+                        "name": {
+                            "__node_info": "商圈中的主要建筑物或地标"
+                        }
+                    }
+                },
+                "roads": {
+                    "__node_info": "描述道路的相关信息",
+                    "distance": {
+                        "__node_info": "道路到请求位置的距离"
+                    },
+                    "direction": {
+                        "__node_info": "道路所在方向"
+                    },
+                    "location": {
+                        "__node_info": "道路的经纬度坐标"
+                    }
+                },
+                "roadinters": {
+                    "__node_info": "描述道路交叉口的相关信息",
+                    "location": {
+                        "__node_info": "交叉口的经纬度坐标"
+                    },
+                    "distance": {
+                        "__node_info": "交叉口到请求位置的距离"
+                    },
+                    "direction": {
+                        "__node_info": "交叉口所在方向"
+                    },
+                    "first_id": {
+                        "__node_info": "第一条道路的ID"
+                    },
+                    "first_name": {
+                        "__node_info": "第一条道路的名称"
+                    },
+                },
+                "pois": {
+                    "__node_info": "描述兴趣点 (POI) 的相关信息",
+                    "id": {
+                        "__node_info": "POI 的唯一标识符"
+                    },
+                    "name": {
+                        "__node_info": "POI 的名称"
+                    },
+                    "type": {
+                        "__node_info": "POI 的类型，例如 '餐厅' 或 '银行'"
+                    },
+                    "tel": {
+                        "__node_info": "POI 的联系电话"
+                    },
+                    "distance": {
+                        "__node_info": "POI 到请求位置的距离"
+                    },
+                    "direction": {
+                        "__node_info": "POI 所在方向"
+                    },
+                    "address": {
+                        "__node_info": "POI 的详细地址"
+                    },
+                    "location": {
+                        "__node_info": "POI 的经纬度坐标"
+                    },
+                    "businessarea": {
+                        "__node_info": "POI 所在的商圈"
+                    }
+                },
+                "aois": {
+                    "__node_info": "描述兴趣区域 (AOI) 的相关信息",
+                    "id": {
+                        "__node_info": "AOI 的唯一标识符"
+                    },
+                    "name": {
+                        "__node_info": "AOI 的名称"
+                    },
+                    "adcode": {
+                        "__node_info": "AOI 所在的行政区域代码"
+                    },
+                    "location": {
+                        "__node_info": "AOI 的中心经纬度"
+                    },
+                    "area": {
+                        "__node_info": "AOI 的面积"
+                    },
+                    "distance": {
+                        "__node_info": "AOI 到请求位置的距离"
+                    },
+                    "type": {
+                        "__node_info": "AOI 的类型，例如 '商业' 或 '住宅'"
+                    }
+                }
             }
         }
 
-        let api = new apiCaller();
+    </script>
+    <script>
+        function mkUrl(obj) {
+            let url = obj.base;
+            let keys = Object.keys(obj.kvs);
+            for (let i = 0; i < keys.length; i++) {
+                let k = keys[i];
+                let v = obj.kvs[k];
+                if (i == 0) {
+                    url += '?';
+                }
+                url = url.concat(k, '=', v);
+                if (i != keys.length - 1) {
+                    url += '&';
+                }
+            }
+            return url
+        }
 
-        function gaoDeLoc(gaodeLntLatStr) {
+        async function gaoDeLoc(gaodeLntLatStr) {
             let max_radius = 500;
             let requestObj = {
                 base: 'https://restapi.amap.com/v3/geocode/regeo',
@@ -94,23 +325,22 @@
                     key: '22f56bdaf27f7d13215d03984880ab26',
                     location: gaodeLntLatStr,
                     radius: 0,
+                    extensions: 'all',
                 }
             }
-            api.get(api.mkUrl(requestObj))
-            api.success((resObj) => {
-                console.log(resObj);
-                console.log(`range ${requestObj.kvs.radius}`)
-                if (resObj.status != 1 && requestObj.kvs.radius <= max_radius) {
+            let resObj = null;
+            while(1){
+                resObj = await fetch(mkUrl(requestObj)).then((res) => res.json())
+                console.log(`range ${requestObj.kvs.radius} get`, resObj);
+                if(resObj.status == 1) break;
+                if (requestObj.kvs.radius <= max_radius) {
                     requestObj.kvs.radius += 50;
-                } else {
-                    document.getElementById('loc_name').innerHTML = (
-                        resObj.regeocode.formatted_address
-                    );
-                }
-            })
+                } else break;
+            }
+            return resObj
         }
 
-        function gaoDeLntLat(longitude, latitude) {
+        async function gaoDeLntLat(longitude, latitude) {
             longitude = longitude.toFixed(6);
             latitude = latitude.toFixed(6);
             let requestObj = {
@@ -121,27 +351,23 @@
                     coordsys: 'gps',
                 }
             }
-            api.get(api.mkUrl(requestObj));
-            api.success((resObj) => {
-                console.log(resObj);
-                gaoDeLoc(resObj.locations);
-            })
+            gaodeLntLatObj = await fetch(mkUrl(requestObj)).then((res) => res.json())
+            console.log(gaodeLntLatObj)
+            return gaodeLntLatObj
         }
 
         function refreshLoc() {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
+                async (position) => {
                     console.log(position);
-                    document.getElementById('loc').innerText = (
-                        position.coords.longitude + ' ' + position.coords.latitude
-                    );
-                    gaoDeLntLat(position.coords.longitude, position.coords.latitude)
-                    // document.getElementById('speed').innerHTML = (
-                    //     position.coords.speed
-                    // )
-                    // document.getElementById('heading').innerHTML = (
-                    //     position.coords.heading
-                    // )
+                    locEl.innerHTML = JSON.stringify(position, null, 4);
+                    
+                    gdllobj = await gaoDeLntLat(position.coords.longitude, position.coords.latitude)
+                    locEl.innerHTML += '\ngaoDeLntLat: ' + JSON.stringify(gdllobj, null, 4);
+                    
+                    resObj = await gaoDeLoc(gdllobj.locations)
+                    locEl.innerHTML += '\ngaoDeLoc: ' + jsonStringifyWithComments(resObj, infoNode, 4);
+                    
                 },
                 (positionError) => {
                     console.log(positionError.code, positionError.message)
@@ -151,8 +377,16 @@
                 }
             );
         }
+
+        locEl = document.getElementById('loc');
+        flocEl = document.getElementById('floc');
+        flocEl.style.display = 'none';
+        flocEl.innerHTML = '\n'.repeat(100);
         refreshLoc();
-        document.getElementById('refresh_loc').onclick = refreshLoc;
+        function switchLoc() {
+            locEl.style.display = locEl.style.display == 'none' ? 'block' : 'none';
+            flocEl.style.display = flocEl.style.display == 'none' ? 'block' : 'none';
+        }
         // setInterval(refreshLoc, 5000);
 
     </script>

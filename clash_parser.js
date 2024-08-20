@@ -32,7 +32,7 @@ module.exports.parse = async (raw, { axios, yaml, notify, console }, { name, url
 
     let proxiesLocationMap = new Map();
     let locSuffix = '-手动';
-    let locAutoSuffix = '-自动选择时延最低';
+    let locAutoSuffix = '-fastest';
     proxies.forEach(v => {
         let match = v.match(/转([^a-zA-Z\[\]]+)/);
         if (!match) return;

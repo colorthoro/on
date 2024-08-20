@@ -1,0 +1,26 @@
+@key=22f56bdaf27f7d13215d03984880ab26
+@test_location=116.481499,39.990475
+
+# @name convert
+GET https://restapi.amap.com/v3/assistant/coordinate/convert
+?key={{key}}
+&locations={{test_location}}
+&coordsys=gps
+User-Agent: 'vscode-restclient'
+
+###
+
+# @name regeo
+# @no-cookie-jar
+GET https://restapi.amap.com/v3/geocode/regeo
+?key={{key}}
+&location={{convert.response.body.locations}}
+&radius=0
+&extensions=all
+
+
+###
+# @note
+# @no-redirect
+# @no-cookie-jar
+GET baidu.com
