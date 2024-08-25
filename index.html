@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>首页</title>
+    <style>
+        .log{
+            white-space: pre;
+            overflow: auto;
+        }
+        .comment{
+            color: green;
+            opacity: 0.3;
+        }
+        .title{
+            position: sticky;
+            top: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,10 +27,10 @@
         <div id="time"></div>
         <button onclick="refreshLoc()">loc</button>
         <button onclick="switchLoc()">switch</button>
-        <div id="loc" style="white-space: pre;overflow: auto;"></div>
-        <div id="floc" style="white-space: pre-wrap;"></div>
+        <div id="loc" class="log"></div>
+        <div id="floc" class="log"></div>
         <hr>
-        <div id="localstorage" style="white-space: pre;overflow: auto;">localStorage:<ul></ul></div>
+        <div id="localstorage" class="log">localStorage:<ul></ul></div>
         <hr>
         <input type="checkbox" name="awaking" id="awaking">
         <label for="awaking">唤醒</label>
@@ -27,6 +41,10 @@
             <a href="bili.html">bilibili</a>
             <a href="百人万元模拟_ECharts.html">百人万元模拟_ECharts</a>
         </div>
+        <input type="checkbox" name="sos" id="sos">
+        <label for="sos">SOS Light</label>
+        <span class="comment">(need photo privilege cause the torch api is binded on it)</span>
+        <div id="sos_log" class="log"></div>
     </div>
     <script>
         o_console_log = console.log;
@@ -106,7 +124,7 @@
             function stringifyWithComments(value, valueInfoNode, indent = '') {
                 let comment = '';
                 if (valueInfoNode && valueInfoNode.__node_info){
-                    comment = `<span style='color: green; opacity: 0.3;'>  // ${valueInfoNode.__node_info}</span>`;
+                    comment = `<span class="comment">  // ${valueInfoNode.__node_info}</span>`;
                 }
                 if (typeof value === 'object' && value !== null) {
                     let isArray = Array.isArray(value);
@@ -389,6 +407,95 @@
         }
         // setInterval(refreshLoc, 5000);
 
+    </script>
+    <script>
+        sosBtn = document.getElementById('sos');
+        logEl = document.getElementById('sos_log');
+        function log(msg) {
+            logEl.innerHTML += msg + '\n';
+        }
+        function clearLog() {
+            logEl.innerHTML = '';
+        }
+        async function getLightCtl() {
+            // 检查navigator
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                return false;
+            }
+            medidaStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment'
+                }
+            });
+            clearLog();
+            tracks = medidaStream.getVideoTracks();
+            for (let track of tracks) {
+                log('Track Kind: ' + track.kind);
+                log('Track Label: ' + track.label);
+                log('-'.repeat(5));
+                let capabilities = track.getCapabilities();
+                log('Capabilities:\n' + JSON.stringify(capabilities, null, 2));
+                log('-'.repeat(5));
+                let settings = track.getSettings();
+                log('Settings:\n' + JSON.stringify(settings, null, 2));
+                log('-'.repeat(5));
+                if (capabilities.torch) {
+                    return {
+                        light_on: () => track.applyConstraints({ torch: true }),
+                        light_off: () => track.applyConstraints({ torch: false }),
+                        light_status: () => track.getSettings().torch
+                    }
+                }
+            }
+
+        }
+        function release(){
+            if (medidaStream) {
+                for (let track of medidaStream.getTracks()) {
+                    track.stop();
+                }
+                medidaStream = null;
+                lightCtl = null;
+                sosBtn.checked = false;
+            }
+        }
+        async function sleep(ms) {
+            await new Promise(resolve => setTimeout(resolve, ms));
+        }
+        // sos signal array, [light_length, dark_length, light_length, dark_length, ...]
+        sosSignal = [
+            500, 500, 500, 500, 500, 500,
+            1000, 500, 1000, 500, 1000, 500,];
+        async function sos(lightCtl) {
+            if (!lightCtl) {
+                return;
+            }
+            lightCtl.light_off();
+            while (sosBtn.checked) {
+                for (let ms of sosSignal) {
+                    if (!sosBtn.checked) break;
+                    if (lightCtl.light_status()) lightCtl.light_off();
+                    else lightCtl.light_on();
+                    await sleep(ms);
+                }
+            }
+        }
+        lightCtl = null;
+        
+        sosBtn.addEventListener('change', async function () {
+            if (this.checked) {
+                if (!lightCtl) lightCtl = await getLightCtl();
+                if (!lightCtl) {
+                    alert('No torch api found');
+                    release();
+                    return;
+                }
+                sos(lightCtl);
+            } else {
+                lightCtl.light_off();
+                release();
+            }
+        });
     </script>
 </body>
 
